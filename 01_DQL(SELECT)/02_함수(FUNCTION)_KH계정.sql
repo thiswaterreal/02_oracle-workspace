@@ -265,8 +265,10 @@ SELECT SYSDATE FROM DUAL;
     * MONTHS_BETWEEN(DATE1, DATE2) : 두 날짜 사이의 개월 수 => 내부적으로 DATE1 - DATE2 후 나누기 30,31 이 진행됨
                                      => 결과값은  NUMBER 타입
 */
--- EMPLOYEE 에서 사원명, 입사일, 근무일수, 근무개월수
-SELECT EMP_NAME, HIRE_DATE, FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
+-- EMPLOYEE 에서 사원명, 입사일, 근무년수, 근무일수, 근무개월수
+SELECT EMP_NAME, HIRE_DATE, 
+FLOOR(MONTHS_BETWEEN(SYSDATE - HIRE_DATE)/12) AS "근무년수",
+FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
 CEIL(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)) || '개월' AS "근무개월수"
 FROM EMPLOYEE;
 
