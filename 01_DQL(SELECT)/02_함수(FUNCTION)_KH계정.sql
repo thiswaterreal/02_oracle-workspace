@@ -252,6 +252,7 @@ SELECT FLOOR(123.952) FROM DUAL;
 
 SELECT TRUNC(123.456) FROM DUAL;        --(123) 위치지정 안하면 FLOOR와 동일함 (그냥 버림)
 SELECT TRUNC(123.456, 1) FROM DUAL;     --(123.4) 소수점 아래 첫째자리까지 표현
+SELECT TRUNC(123.456, 2) FROM DUAL;     --(123.45)
 SELECT TRUNC(123.456, -1) FROM DUAL;    --(120)
 
 --======================================= 날짜 처리 함수 =========================================
@@ -267,7 +268,6 @@ SELECT SYSDATE FROM DUAL;
 */
 -- EMPLOYEE 에서 사원명, 입사일, 근무년수, 근무일수, 근무개월수
 SELECT EMP_NAME, HIRE_DATE, 
-FLOOR(MONTHS_BETWEEN(SYSDATE - HIRE_DATE)/12) AS "근무년수",
 FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
 CEIL(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)) || '개월' AS "근무개월수"
 FROM EMPLOYEE;
