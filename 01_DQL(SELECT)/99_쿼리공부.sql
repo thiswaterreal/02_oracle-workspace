@@ -67,3 +67,55 @@ AND EMAIL LIKE '___$_%' ESCAPE '$' AND BONUS IS NOT NULL;
 
 --> 조치내용
 -- 1. GRANT CONNECT, RESOURCE TO SCOTT; 구문 실행하여 권한 부여!!
+
+------------------------------------------------------------------------
+-- 부서코드가 D5인 사원들의 총 연봉 합
+SELECT SUM(SALARY * 12)   -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수 쓰면 오류남 *****
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5';
+
+------------------------------------------------------------------------
+-- 5. COUNT(*|컬럼|DISTINCT 컬럼) : 조회된 행 개수를 세서 반환
+
+--    COUNT(*)            : 조회된 결과의 모든 행 개수를 세서 반환
+--    COUNT(컬럼)          : 제시한 해당 컬럼값이 NULL이 아닌것만 행 개수 세서 반환
+--    COUNT(DISTINCT 컬럼) : 해당 컬럼값 중복을 제거한 후 행 개수 세서 반환
+
+-- 전체 사원 수
+SELECT COUNT(*)
+FROM EMPLOYEE;
+
+-- 여자 사원 수 
+SELECT COUNT(*) -- 3
+FROM EMPLOYEE   -- 1
+WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
+
+-- 보너스를 받는 사원 수
+SELECT COUNT(BONUS) -- 컬럼이 NULL이 아닌!!것만(값 존재) 카운팅함
+FROM EMPLOYEE;
+--WHERE BONUS IS NOT NULL;
+
+-- 부서배치를 받은 사원 수
+SELECT COUNT(DEPT_CODE)
+FROM EMPLOYEE;
+
+-- 현재 사원들이 몇개의 부서에 분포되어있는지
+SELECT COUNT(DISTINCT DEPT_CODE)    --6 (D1 D2 D5 D6 D8 D9)
+FROM EMPLOYEE;
+----------------------------------------------------------------------------------
+
+-- 여자 사원 수 
+SELECT COUNT(*) -- 3
+FROM EMPLOYEE   -- 1
+WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
+
+-- GROUP BY로 묶으면?   //뭘까뭘까뭘까
+SELECT SUBSTR(EMP_NO, 8, 1) IN ('2'), COUNT(*) -- 3
+FROM EMPLOYEE   -- 1
+WHERE SUBSTR(EMP_NO, 8, 1);    -- 2 
+
+-- GROUP BY 절에 함수식 기술 가능
+-- 남/여별 총 사원 수
+SELECT DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남', '2', '여'), COUNT(*)
+FROM EMPLOYEE
+GROUP BY SUBSTR(EMP_NO, 8, 1);
