@@ -1,3 +1,4 @@
+--=======================================< // 단일행 함수 // >=========================================
 /*
     < 함수 FUNCTION >
     전달된 컬럼값을 읽어들여서 함수를 실행한 결과를 반환함
@@ -413,3 +414,173 @@ SELECT TO_DATE('041030 143000', 'YYMMDD HH24MISS') FROM DUAL;   -- 포맷을 정해주
 SELECT TO_DATE('140630', 'YYMMDD') FROM DUAL;   --(2014년)
 SELECT TO_DATE('980630', 'YYMMDD') FROM DUAL;   --(2098년)   => YY : 무조건 현재세기로 반영.. 20을 붙임
 SELECT TO_DATE('980630', 'RRMMDD') FROM DUAL;   --(1998년)   => RR : 해당 두자리 년도 값이 50 미만이면 20붙임, 50이상이면 19붙임
+
+---------------------------------------------------------------------------------
+/*
+    * TO_NUMBER : 문자타입의 데이터를 숫자타입으로 변환시켜주는 함수
+    
+    TO_NUMBER(문자, [포맷])     => 결과값은 NUMBER 타입
+*/
+
+SELECT TO_NUMBER('05123475') FROM DUAL;     -- 0이 빠져서 숫자타입으로 저장됨
+
+SELECT '10000000' + '55000' FROM DUAL;      -- 오라클에서는 자동형변환 잘되어있음
+--SELECT '10,000,000' + '55,000' FROM DUAL;   -- 오류!! 안에 숫자만 있어야 자동형변환 됨
+SELECT TO_NUMBER('10,000,000', '99,999,999') + TO_NUMBER('55,000', '99,999') FROM DUAL; --강제형변환
+
+--======================================= NULL 처리 함수 =========================================
+/*
+    < 중요!! >
+    
+    * NVL(컬럼, 해당 컬림이 NULL일 경우 반환할 값)
+*/
+
+SELECT EMP_NAME, BONUS, NVL(BONUS, 0)
+FROM EMPLOYEE;
+
+-- 전 사원의 이름, (보너스 포함)연봉
+SELECT EMP_NAME, (SALARY + SALARY * BONUS)*12, (SALARY + SALARY * NVL(BONUS, 0))*12
+FROM EMPLOYEE;
+
+-- 전 사원의 부서코드, 부서 유무
+SELECT DEPT_CODE, NVL(DEPT_CODE, '부서없음')
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+/*
+    * NVL2(컬럼, 반환값1, 반환값2)
+    
+    컬럼값이 존재할 경우, 반환값1 반환
+    컬럼값이 NULL일 경우, 반환값2 반환
+*/
+
+SELECT EMP_NAME, BONUS, NVL2(BONUS, 0.7, 0.1)
+FROM EMPLOYEE;
+
+SELECT EMP_NAME, DEPT_CODE, NVL2(DEPT_CODE, '부서 O', '부서 X')
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+/*
+    * NULLIF(비교대상1, 비교대상2)
+    
+    두 개의 값이 일치하면, NULL 반환
+    두 개의 값이 일치하지 않으면, 비교대상1 반환
+*/
+
+SELECT NULLIF('123', '123') FROM DUAL;      --(NULL)
+SELECT NULLIF('123', '456') FROM DUAL;      --(123)
+
+--======================================= 선택 함수 =========================================
+/*
+    * DECODE(비교하고자 하는 대상(컬럼|산술연산|함수식), 비교값1, 결과값1, 비교값2, 결과값2, ...)
+
+    자바에서의 동등비교!!
+    SWITCH(비교대상) {
+    CASE 비교값1 : BREAK;
+    CASE 비교값2 : BREAK;
+    ...
+    DEFAULT : BREAK;
+    }
+*/
+
+-- 사번, 사원명, 주민번호
+SELECT EMP_ID, EMP_NAME, EMP_NO, SUBSTR(EMP_NO, 8, 1),
+DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남', '2', '여') AS "성별"
+FROM EMPLOYEE;
+
+-- 직원의 급여 조회시 각 직급별로 인상해서 조회
+-- J7인 사원은 급여를 10% 인상 (SALARY * 1.1)
+-- J6인 사원은 급여를 15% 인상 (SALARY * 1.15)
+-- J5인 사원은 급여를 20% 인상 (SALARY * 1.2)
+-- 그 외의 사원은 급여를 5% 인상 (SALARY * 1.05)
+
+-- 사원명, 직급코드, 기존급여, 인상된급여
+SELECT EMP_NAME, JOB_CODE, SALARY,
+       DECODE(JOB_CODE, 'J7', SALARY * 1.1,
+                        'J6', SALARY * 1.15,
+                        'J5', SALARY * 1.2,
+                        SALARY * 1.05) AS "인상된 급여"
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+
+/*
+    * CASE WHEN THEN
+    
+    CASE WHEN 조건식1 THEN 결과값1
+         WHEN 조건식2 THEN 결과값2
+         ...
+         ELSE 결과값N
+    END
+    
+    => 자바에서의 IF -  ELSE IF - ELSE 문과 유사 (조건절)
+*/
+
+SELECT EMP_NAME, SALARY,
+       CASE WHEN SALARY >= 5000000 THEN '고급 개발자'
+            WHEN SALARY >= 3500000 THEN '중급 개발자'
+            ELSE '초급'
+       END AS "레벨"
+FROM EMPLOYEE;
+
+--=======================================< // 그룹 함수 // >=========================================
+-- 1. SUM(숫자타입컬럼) : 해당 컬럼 값들의 총 합계를 구해서 반환해주는 함수
+
+-- EMPLOYEE 테이블의 전 사원의 급여 합
+SELECT SUM(SALARY)
+FROM EMPLOYEE;  -- 전체 사원이 한 그룹으로 묶임 (한 행)
+
+-- 남자 사원들의 총 급여 합
+SELECT SUM(SALARY)  -- 3
+FROM EMPLOYEE   -- 1
+WHERE SUBSTR(EMP_NO, 8, 1) IN ('1', '3');   -- 2
+
+-- 부서코드가 D5인 사원들의 총 연봉 합
+SELECT SUM(SALARY * 12)   -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수 쓰면 오류남 
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5';
+
+---------------------------------------------------------------------------------
+-- 2. AVG(숫자타입) ; 해당 컬럼값들의 평균값을 구해서 반환
+SELECT ROUND(AVG(SALARY))
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+-- 3. MIN(여러타입) : 해당 컬럼값들 중에 가장 작은 값 구해서 반환
+SELECT MIN(EMP_NAME), MIN(SALARY), MIN(HIRE_DATE)   -- 문자는 'ㄱ'
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+-- 4. MAX(여러타입) : 해당 컬럼값들 중에 가장 큰 값 구해서 반환
+SELECT MAX(EMP_NAME), MAX(SALARY), MAX(HIRE_DATE)   -- 문자는 'ㅎ'
+FROM EMPLOYEE;
+
+---------------------------------------------------------------------------------
+-- 5. COUNT(*|컬럼|DISTINCT 컬럼) : 조회된 행 개수를 세서 반환
+
+--    COUNT(*)            : 조회된 결과의 모든 행 개수를 세서 반환
+--    COUNT(컬럼)          : 제시한 해당 컬럼값이 NULL이 아닌것만 행 개수 세서 반환
+--    COUNT(DISTINCT 컬럼) : 해당 컬럼값 중복을 제거한 후 행 개수 세서 반환
+
+-- 전체 사원 수
+SELECT COUNT(*)
+FROM EMPLOYEE;
+
+-- 여자 사원 수 
+SELECT COUNT(*) -- 3
+FROM EMPLOYEE   -- 1
+WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
+
+-- 보너스를 받는 사원 수
+SELECT COUNT(BONUS) -- 컬럼이 NULL이 아닌!!것만(값 존재) 카운팅함
+FROM EMPLOYEE;
+--WHERE BONUS IS NOT NULL;
+
+-- 부서배치를 받은 사원 수
+SELECT COUNT(DEPT_CODE)
+FROM EMPLOYEE;
+
+-- 현재 사원들이 몇개의 부서에 분포되어있는지
+SELECT COUNT(DISTINCT DEPT_CODE)    --6 (D1 D2 D5 D6 D8 D9)
+FROM EMPLOYEE;
