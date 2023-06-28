@@ -5,8 +5,7 @@
 */
 
 -- 간단 서브쿼리 예시 1
--- 노홍철 사원과 같은 부서에 속한 사원들 조회하고 싶음
-
+-- 노옹철 사원과 같은 부서에 속한 사원들 조회하고 싶음
 -- 1) 먼저 노옹철 사원의 부서코드 조회
 SELECT DEPT_CODE
 FROM EMPLOYEE
@@ -55,6 +54,7 @@ WHERE SALARY >= (SELECT AVG(SALARY)
       >> 서브쿼리 종류가 뭐냐에 따라서 서브쿼리 앞에 붙는 연산자가 달라짐!! *** 중요 ***
 */
 
+--==================================< 단일행 서브쿼리 >===================================
 /*
     1. 단일행 서브쿼리 (SINGLE ROW SUBQUERY)
     서브쿼리의 조회 결과값의 개수가 오로지 1개일 때 (한행 한열)
@@ -62,27 +62,26 @@ WHERE SALARY >= (SELECT AVG(SALARY)
     =, !=, ^=, <>, <, >, >=, <= ...
 */
 
--- 1) 전 직원의 평균급여보다 급여를 더 적게 받는 사원들의 사원명, 직급코드, 급여 조회
+-- 1) 전 직원의 평균급여'보다 급여를 더 적게 받는 사원들의 사원명, 직급코드, 급여 조회
 SELECT EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
---WHERE SALARY < 전직원의 평균 급여
-WHERE SALARY < (SELECT AVG(SALARY)
-                FROM EMPLOYEE);
+WHERE SALARY < (SELECT AVG(SALARY)     
+                FROM EMPLOYEE);         -- 3047662.6 전직원의 평균 급여
                 
--- 2) 최저 급여를 받는 사원의 사번, 이름, 급여, 입사일
+-----------------------------------------               
+-- 2) 최저 급여'를 받는 사원의 사번, 이름, 급여, 입사일
 SELECT EMP_ID, EMP_NAME, SALARY, HIRE_DATE
 FROM EMPLOYEE
---WHERE SALARY = 전직원들중 최저급여;
-WHERE SALARY = (SELECT MIN(SALARY)
-                FROM EMPLOYEE);
+WHERE SALARY = (SELECT MIN(SALARY)     
+                FROM EMPLOYEE);         -- 1380000 전직원들중 최저 급여
                 
--- 3) 노옹철 사원의 급여보다 더 많이 받는 사원들의 사번, 이름, 부서코드, 급여 조회
+-----------------------------------------                
+-- 3) 노옹철 사원의 급여'보다 더 많이 받는 사원들의 사번, 이름, 부서코드, 급여 조회
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
 FROM EMPLOYEE
---WHERE SALARY > 노옹철 사원의 급여
-WHERE SALARY > (SELECT SALARY
+WHERE SALARY > (SELECT SALARY         
                 FROM EMPLOYEE
-                WHERE EMP_NAME = '노옹철');
+                WHERE EMP_NAME = '노옹철');  -- 3700000 노옹철 사원의 급여
                 
 -- >> 오라클 전용구문
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY, DEPT_TITLE
@@ -97,17 +96,18 @@ SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY, DEPT_TITLE
 FROM EMPLOYEE
 JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
 WHERE SALARY > (SELECT SALARY
-              FROM EMPLOYEE
-              WHERE EMP_NAME = '노옹철');
-              
--- 4) 부서별 급여합이 가장 큰 부서의 부서코드, 급여 합 조회
+                FROM EMPLOYEE
+                WHERE EMP_NAME = '노옹철');
+
+-----------------------------------------               
+-- 4) 부서별: 급여합이 가장 큰 부서'의 부서코드, 급여 합 조회
 -- 4_1) 먼저 부서별 급여합 중에서도 가장 큰 값 하나만 조회
 SELECT MAX(SUM(SALARY))
 FROM EMPLOYEE
 GROUP BY DEPT_CODE; --17700000
 
 -- 4_2) 부서별 급여합이 177700000원인 부서 조회 (부서코드, 급여합)
-SELECT DEPT_CODE, SUM(SALARY)
+SELECT DEPT_CODE, SUM(SALARY)       -- GROUP으로 묶은것들의 합계니까, 그룹함수여도 단일행함수 같이 쓸 수 있음
 FROM EMPLOYEE
 GROUP BY DEPT_CODE
 HAVING SUM(SALARY) = 17700000;
@@ -119,13 +119,17 @@ GROUP BY DEPT_CODE
 HAVING SUM(SALARY) = (SELECT MAX(SUM(SALARY))
                       FROM EMPLOYEE
                       GROUP BY DEPT_CODE);
-                      
--- 직접해보기
--- 전지연 사원과 같은 부서원들의 사번, 사원명, 전화번호, 입사일, 부서명
+
+-----------------------------------------                       
+-- 직접해보자
+-- 전지연 사원과 같은 부서'원들의 사번, 사원명, 전화번호, 입사일, 부서명
 -- 단, 전지연은 제외!
-SELECT DEPT_CODE
+SELECT EMP_ID, EMP_NAME, PHONE, HIRE_DATE, DEPT_CODE
 FROM EMPLOYEE
-WHERE EMP_NAME = '전지연';  -- D1
+WHERE DEPT_CODE = (SELECT DEPT_CODE
+                   FROM EMPLOYEE
+                   WHERE EMP_NAME = '전지연') -- D1
+AND EMP_NAME != '전지연';
 
 -- >> 오라클 전용 구문
 SELECT EMP_ID, EMP_NAME, PHONE, HIRE_DATE, DEPT_TITLE
@@ -133,7 +137,7 @@ FROM EMPLOYEE, DEPARTMENT
 WHERE DEPT_CODE = DEPT_ID
 AND DEPT_CODE = (SELECT DEPT_CODE
                  FROM EMPLOYEE
-                 WHERE EMP_NAME = '전지연')
+                 WHERE EMP_NAME = '전지연') -- D1
 AND EMP_NAME != '전지연';
 
 -- >> ANSI 구문
@@ -142,21 +146,21 @@ FROM EMPLOYEE
 JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
 WHERE DEPT_CODE = (SELECT DEPT_CODE
                    FROM EMPLOYEE
-                   WHERE EMP_NAME = '전지연')
+                   WHERE EMP_NAME = '전지연') -- D1
 AND EMP_NAME != '전지연';
 
---================================================================================
+--==================================< 다중행 서브쿼리 >===================================
 /*
     2. 다중행 서브쿼리 (MULTI ROW SUBQUERY)
     서브쿼리를 수행할 결과값이 여러 행 일때 (컬럼(열)의 한개)
     
-    - IN 서브쿼리 : 여러개의 결과값 중에서 한개라도 일치하는 값이 있다면
+    - IN 서브쿼리 : 여러개의 결과값 중에서 한개라도 일치하는 값이 있다면   // = 대신?
     
     - > ANY 서브쿼리 : 여러개의 결과값 중에서 '한개라도' 클 경우 (여러개의 결과값 중에서 가장 작은 값 보다 클 경우)
     - < ANY 서브쿼리 : 여러개의 결과값 중에서 '한개라도' 작을 경우 (여러개의 결과값 중에서 가장 큰 값 보다 작은 경우)
 
     비교대상 > ANY (값1, 값2, 값3)
-    비교대상 > 값1 OR 비교대상 > 값2 OR 비교대상 > 값3
+    비교대상 > 값1 OR 비교대상 > 값2 OR 비교대상 > 값3                  // > <  대신?
     
     - > ALL 서브쿼리 : 여러개의 '모든' 결과값들 보다 클 경우
     - < ALL 서브쿼리 : 여러개의 '모든' 결과값들 보다 작을 경우
@@ -166,7 +170,7 @@ AND EMP_NAME != '전지연';
     
 */
 
--- 1) 유재식 또는 윤은해 사원과 같은 직급인 사원들의 사번, 사원명, 직급코드, 급여
+-- 1) 유재식 또는 윤은해 사원과 같은 직급'인 사원들의 사번, 사원명, 직급코드, 급여
 -- 1_1) 유재식 또는 윤은해 사원이 어떤 직급인지 조회
 SELECT JOB_CODE
 FROM EMPLOYEE
@@ -177,33 +181,30 @@ SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
 WHERE JOB_CODE IN ('J3', 'J7');
 
-SELECT *
-FROM EMPLOYEE;
-
 -- 위의 두 단계를 하나의 쿼리문으로..
 SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
 WHERE JOB_CODE IN (SELECT JOB_CODE
                    FROM EMPLOYEE
-                   WHERE EMP_NAME IN ('유재식', '윤은해'));   -- = 이라고 쓰면 오류!! 여러 행으로 조회했기 때문
+                   WHERE EMP_NAME IN ('유재식', '윤은해'));      -- J3, J7 (다중행)
+                   -- = 이라고 쓰면 오류!! 여러 행으로 조회했기 때문
                    -- 만약에 결과값이 여러 개 나올 것 같으면 그냥 안전하게 IN 으로 가자
                    
 ----------------------------------------
 -- 사원 => 대리 => 과장 => 차장 => 부장 ..
--- 2) 대리 직급임에도 불구하고 과장 직급 급여들 중 최소 급여보다 많이 받는 직원 조회 (사번, 이름, 직급, 급여)
-
+-- 2) 대리 직급임에도 불구하고 과장 직급 급여들 중 최소 급여'보다 많이 받는 직원 조회 (사번, 이름, 직급, 급여)
 -- 2_1) 먼저 과장 직급인 사원들의 급여 조회
 SELECT SALARY
 FROM EMPLOYEE E, JOB J
 WHERE E.JOB_CODE = J.JOB_CODE
-AND J.JOB_NAME = '과장';  -- 2200000 2500000 3760000
+AND J.JOB_NAME = '과장';  -- 2200000 2500000 3760000 (과장들의 급여)
 
 -- 2_2) 직급이 대리이면서 급여값이 위의 목록들 값 중에 하나라도 큰 사원
 SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
 FROM EMPLOYEE
 JOIN JOB USING(JOB_CODE)
 WHERE JOB_NAME = '대리'
-AND SALARY > ANY (2200000, 2500000, 3760000);
+AND SALARY > ANY (2200000, 2500000, 3760000);       -- 이 중 하나의 값보다 크기만 하면 됨! (ANY!!)
 
 -- 위의 두 단계를 하나의 쿼리문으로..
 SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
@@ -216,6 +217,18 @@ AND SALARY > ANY (SELECT SALARY
                   AND J.JOB_NAME = '과장');
 
 -- 사실 단일행 서브쿼리로도 가능!
+-- 나의 쿼리
+SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
+FROM EMPLOYEE
+JOIN JOB USING (JOB_CODE)
+WHERE SALARY > (SELECT MIN(SALARY)
+                FROM EMPLOYEE
+                JOIN JOB USING (JOB_CODE)
+                WHERE JOB_NAME = '과장')  -- 2200000 (과장들 중 최소 급여)
+AND JOB_NAME = '대리';
+
+-- 수업
+/*
 SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
 FROM EMPLOYEE
 JOIN JOB USING(JOB_CODE)
@@ -223,63 +236,76 @@ WHERE JOB_NAME = '대리'
 AND SALARY > (SELECT MIN(SALARY)
                   FROM EMPLOYEE E, JOB J
                   WHERE E.JOB_CODE = J.JOB_CODE
-                  AND J.JOB_NAME = '과장');
-                  
--- 3) 과장 직급임에도 불구하고 차장 직급인 사원들의 모든 급여보다도 더 많이 받는 사원들의 사번, 이름, 직급명, 급여 조회
+                  AND JOB_NAME = '과장');
+*/
+-----------------------------------------                  
+-- 3) 과장 직급임에도 불구하고 차장 직급인 사원들의 모든 급여'보다도 더 많이 받는 사원들의 사번, 이름, 직급명, 급여 조회
 SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
 FROM EMPLOYEE
 JOIN JOB USING (JOB_CODE)
 WHERE JOB_NAME = '과장'
---AND SALARY > (차장 직급인 사람들의 급여들)
 AND SALARY > ALL (SELECT SALARY
-              FROM EMPLOYEE
-              JOIN JOB USING(JOB_CODE)
-              WHERE JOB_NAME = '차장');
+                    FROM EMPLOYEE E, JOB J
+                    WHERE E.JOB_CODE = J.JOB_CODE
+                    AND JOB_NAME = '차장');         -- 2800000, 1550000, 2490000, 2480000 (차장들의 급여)
+                                                    -- 이 모두의 값보다 커야함 (ALL!!)
 
---=================================================================================
+--==================================< 다중열 서브쿼리 >===================================
 /*
     3. 다중열 서브쿼리
     결과값은 한 행이지만 나열된 컬럼수가 여러개일 경우
 */
 
--- 1) 하이유 사원과 같은 부서코드, 같은 직급코드에 해당하는 사원들 조회 (사원명, 부서코드, 직급코드, 입사일자)
+-- 1) '하이유' 사원과 같은 부서코드, 같은 직급코드에 해당하는 사원들 조회 (사원명, 부서코드, 직급코드, 입사일자)
 -- 단일행 서브쿼리 ** 2개의 서브쿼리로 작성할 것!
-SELECT EMP_ID, DEPT_CODE, JOB_CODE, HIRE_DATE
+SELECT EMP_NAME, DEPT_CODE, JOB_CODE, HIRE_DATE
 FROM EMPLOYEE
 WHERE DEPT_CODE = (SELECT DEPT_CODE
                     FROM EMPLOYEE
                     WHERE EMP_NAME = '하이유')     -- D5
 AND JOB_CODE = (SELECT JOB_CODE
                     FROM EMPLOYEE
-                    WHERE EMP_NAME = '하이유');    -- J5
-
+                    WHERE EMP_NAME = '하이유');     -- J5 
 
 -- >> 다중열 서브쿼리로
-SELECT EMP_ID, DEPT_CODE, JOB_CODE, HIRE_DATE
+SELECT EMP_NAME, DEPT_CODE, JOB_CODE, HIRE_DATE
 FROM EMPLOYEE
 --WHERE (DEPT_CODE, JOB_CODE) = (하이유 사원의 부서코드 하이유 사원의 직급코드);
-WHERE (DEPT_CODE, JOB_CODE) = (SELECT DEPT_CODE, JOB_CODE
+WHERE (DEPT_CODE, JOB_CODE) = (SELECT DEPT_CODE, JOB_CODE                      -- D5, D6
                                FROM EMPLOYEE
                                WHERE EMP_NAME = '하이유'); -- 순서 중요함!!, 개수 맞춰야함!!
 
--- 박나라 사원과 같은 직급코드, 같은 사수를 가지고 있는 사원들의 사번, 사원명, 직급코드, 사수사번 조회
+--------------------------------------------
+-- '박나라' 사원과 같은 직급코드, 같은 사수를 가지고 있는 사원들의 사번, 사원명, 직급코드, 사수사번 조회
+-- 단일행 서브쿼리
+SELECT EMP_ID, EMP_NAME, JOB_CODE, MANAGER_ID
+FROM EMPLOYEE
+WHERE JOB_CODE = (SELECT JOB_CODE
+                    FROM EMPLOYEE
+                    WHERE EMP_NAME = '박나라')    -- J7
+AND MANAGER_ID = (SELECT MANAGER_ID
+                    FROM EMPLOYEE
+                    WHERE EMP_NAME = '박나라');   -- 207
+                    
+-- 다중열 서브쿼리
 SELECT EMP_ID, EMP_NAME, JOB_CODE, MANAGER_ID
 FROM EMPLOYEE
 WHERE (JOB_CODE, MANAGER_ID) = (SELECT JOB_CODE, MANAGER_ID
                                 FROM EMPLOYEE
-                                WHERE EMP_NAME = '박나라');
+                                WHERE EMP_NAME = '박나라');      -- J7, 207
 
---==================================================================================
+--==================================< 다중열 다중열 서브쿼리 >===================================
 /*
     4. 다중행 다중열 서브쿼리
     서브쿼리 조회 결과값이 여러행 여러열 인 경우
 */
 
--- 1) 각 직급별 최소 급여를 받는 사원 조회 (사번, 사원명, 직급코드, 급여)
+-- 1) 각 직급별 최소 급여'를 받는 사원 조회 (사번, 사원명, 직급코드, 급여)
+
 -- >> 각 직급별 최소 급여 조회
 SELECT JOB_CODE, MIN(SALARY)    -- 3
 FROM EMPLOYEE   -- 1
-GROUP BY JOB_CODE   -- 2
+GROUP BY JOB_CODE;   -- 2
 
 SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
@@ -306,7 +332,7 @@ WHERE (DEPT_CODE, SALARY) IN (SELECT DEPT_CODE, MAX(SALARY)
                               FROM EMPLOYEE
                               GROUP BY DEPT_CODE);
                               
---===============================================================================
+--=====================================< 인라인뷰 >==========================================
 /*
     5. 인라인 뷰 (INLINE - VIEW)
     
