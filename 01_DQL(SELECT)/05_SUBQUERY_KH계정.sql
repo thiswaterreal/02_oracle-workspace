@@ -262,10 +262,10 @@ SELECT EMP_NAME, DEPT_CODE, JOB_CODE, HIRE_DATE
 FROM EMPLOYEE
 WHERE DEPT_CODE = (SELECT DEPT_CODE
                     FROM EMPLOYEE
-                    WHERE EMP_NAME = '하이유')     -- D5
+                    WHERE EMP_NAME = '하이유')      -- D5 (DEPT_CODE)
 AND JOB_CODE = (SELECT JOB_CODE
                     FROM EMPLOYEE
-                    WHERE EMP_NAME = '하이유');     -- J5 
+                    WHERE EMP_NAME = '하이유');     -- J5 (JOB_CODE)
 
 -- >> 다중열 서브쿼리로
 SELECT EMP_NAME, DEPT_CODE, JOB_CODE, HIRE_DATE
@@ -282,22 +282,22 @@ SELECT EMP_ID, EMP_NAME, JOB_CODE, MANAGER_ID
 FROM EMPLOYEE
 WHERE JOB_CODE = (SELECT JOB_CODE
                     FROM EMPLOYEE
-                    WHERE EMP_NAME = '박나라')    -- J7
+                    WHERE EMP_NAME = '박나라')     -- J7 (JOB_CODE)
 AND MANAGER_ID = (SELECT MANAGER_ID
                     FROM EMPLOYEE
-                    WHERE EMP_NAME = '박나라');   -- 207
+                    WHERE EMP_NAME = '박나라');    -- 207 (MANAGER_ID)
                     
 -- 다중열 서브쿼리
 SELECT EMP_ID, EMP_NAME, JOB_CODE, MANAGER_ID
 FROM EMPLOYEE
 WHERE (JOB_CODE, MANAGER_ID) = (SELECT JOB_CODE, MANAGER_ID
                                 FROM EMPLOYEE
-                                WHERE EMP_NAME = '박나라');      -- J7, 207
+                                WHERE EMP_NAME = '박나라');      -- J7, 207 (JOB_CODE, MANAGER_ID)
 
 --==================================< 다중열 다중열 서브쿼리 >===================================
 /*
     4. 다중행 다중열 서브쿼리
-    서브쿼리 조회 결과값이 여러행 여러열 인 경우
+    서브쿼리 조회 결과값이 여러행, 여러열 인 경우
 */
 
 -- 1) 각 직급별 최소 급여'를 받는 사원 조회 (사번, 사원명, 직급코드, 급여)
@@ -305,13 +305,13 @@ WHERE (JOB_CODE, MANAGER_ID) = (SELECT JOB_CODE, MANAGER_ID
 -- >> 각 직급별 최소 급여 조회
 SELECT JOB_CODE, MIN(SALARY)    -- 3
 FROM EMPLOYEE   -- 1
-GROUP BY JOB_CODE;   -- 2
+GROUP BY JOB_CODE;   -- 2                       -- J1, J2, J3 ... J7 : 여러행
 
 SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
 WHERE JOB_CODE = 'J2' AND SALARY = 3700000
-OR    JOB_CODE = 'J7' AND SALARY = 1380000
-...; -- 너무 많아..
+OR    JOB_CODE = 'J7' AND SALARY = 1380000;     -- (JOB_CODE, SALARY) : 여러열
+... -- 너무 많아..
 
 -- 서브쿼리를 적용해서 해보자
 SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
