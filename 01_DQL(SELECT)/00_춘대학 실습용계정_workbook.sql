@@ -200,18 +200,16 @@ HAVING COUNT(*) > 1;
 /*
     15. 학번이 A112113 인 김고운 학생의 년도, 학기 별 평점과 년도 별 누적 평점 , 
 총 평점을 구하는 SQL 문을 작성하시오. (단, 평점은 소수점 1 자리까지맊 반올림하여
-표시핚다.)
+표시핚다.) (HINT : ROLLUP)
 */
-SELECT SUBSTR(TERM_NO, 1, 4), SUBSTR(TERM_NO, 5, 2), ROUND(AVG(POINT), 1)
-FROM TB_GRADE
-WHERE STUDENT_NO = 'A112113'
-GROUP BY TERM_NO
-ORDER BY 1;
-
 SELECT *
+FROM TB_GRADE;
+
+SELECT NVL(SUBSTR(TERM_NO, 1, 4), ' ') AS "년도", NVL(SUBSTR(TERM_NO, 5, 2), ' ') AS "학기", ROUND(AVG(POINT), 1) AS "평점"
 FROM TB_GRADE
 WHERE STUDENT_NO = 'A112113'
-ORDER BY 1;
+--GROUP BY TERM_NO
+GROUP BY ROLLUP (SUBSTR(TERM_NO, 1, 4), SUBSTR(TERM_NO, 5, 2));     -- GROUP BY ROLLUP : GROUP BY로 묶은 각각의 소그룹 합계, 전체 합계를 모두 구함
 
 /*
     1. 학생이름과 주소지를 표시하시오. 단, 출력 헤더는 "학생 이름", "주소지"로 하고,
@@ -260,8 +258,17 @@ WHERE TERM_NO = '200402' AND CLASS_NO = 'C3118100';
 /*
 6. 학생 번호, 학생 이름, 학과 이름을 학생 이름으로 오름차순 정렬하여 출력하는 SQL 
 문을 작성하시오.
-*/
+*/    -- 연결고리 (DEPARTMENT_NO, DEPARTMENT_NO)
+SELECT STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME
+FROM TB_STUDENT
+ORDER BY STUDENT_NAME;
+
 
 -- 전체조회
 SELECT *
-FROM TB_GRADE;
+FROM TB_STUDENT;
+SELECT *
+FROM TB_DEPARTMENT;
+
+
+
