@@ -150,8 +150,7 @@ FROM TB_GRADE
 WHERE STUDENT_NO = 'A517178';
 
 /*
-    10. 학과별 학생수를 구하여 "학과번호", "학생수(명)" 의 형태로 헤더를 맊들어 결과값이
-출력되도록 하시오.
+    10. 학과별 학생수를 구하여 "학과번호", "학생수(명)" 의 형태로 헤더를 맊들어 결과값이 출력되도록 하시오.
 */
 SELECT DEPARTMENT_NO AS "학과번호", COUNT(*) AS "학생수(명)"
 FROM TB_STUDENT
@@ -248,27 +247,107 @@ ORDER BY 2;
 
 /*
 5. 2004 년 2 학기에 'C3118100' 과목을 수강핚 학생들의 학점을 조회하려고 핚다. 학점이
-높은 학생부터 표시하고, 학점이 같으면 학번이 낮은 학생부터 표시하는 구문을
-작성해보시오.
+높은 학생부터 표시하고, 학점이 같으면 학번이 낮은 학생부터 표시하는 구문을 작성해보시오.
 */
-SELECT STUDENT_NO, POINT
+SELECT STUDENT_NO, TO_CHAR(POINT, '9.99') AS "POINT"
 FROM TB_GRADE
-WHERE TERM_NO = '200402' AND CLASS_NO = 'C3118100';
+WHERE TERM_NO = '200402' AND CLASS_NO = 'C3118100'
+ORDER BY 2 DESC, 1 ASC;
 
 /*
-6. 학생 번호, 학생 이름, 학과 이름을 학생 이름으로 오름차순 정렬하여 출력하는 SQL 
-문을 작성하시오.
+6. 학생 번호, 학생 이름, 학과 이름을 학생 이름으로 오름차순 정렬하여 출력하는 SQL 문을 작성하시오.
 */    -- 연결고리 (DEPARTMENT_NO, DEPARTMENT_NO)
 SELECT STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME
 FROM TB_STUDENT
-ORDER BY STUDENT_NAME;
+JOIN TB_DEPARTMENT USING (DEPARTMENT_NO)
+ORDER BY 2;
+
+/*
+7. 춘 기술대학교의 과목 이름과 과목의 학과 이름을 출력하는 SQL 문장을 작성하시오.
+*/
+SELECT CLASS_NAME, DEPARTMENT_NAME
+FROM TB_CLASS
+JOIN TB_DEPARTMENT USING (DEPARTMENT_NO);
+
+/*
+8. 과목별 교수 이름을 찾으려고 핚다. 과목 이름과 교수 이름을 출력하는 SQL 문을 작성하시오. -------******
+*/
+--> ANSI
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_CLASS 
+JOIN TB_CLASS_PROFESSOR  USING (CLASS_NO)
+JOIN TB_PROFESSOR C USING (PROFESSOR_NO)
+ORDER BY C.DEPARTMENT_NO, PROFESSOR_SSN, CLASS_TYPE DESC, CLASS_NO;     --**정렬미쳤다
+--> 오라클
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_CLASS C, TB_CLASS_PROFESSOR A, TB_PROFESSOR P
+WHERE C.CLASS_NO = A.CLASS_NO
+AND A.PROFESSOR_NO = P.PROFESSOR_NO;
+
+-- (8,9)전체조회
+SELECT *
+FROM TB_CLASS;  --CLASS_NAME           CLASS_NO
+SELECT * 
+FROM TB_CLASS_PROFESSOR; --            CLASS_NO    PROFESSOR_NO
+SELECT *
+FROM TB_PROFESSOR; --PROFESSOR_NAME                PROFESSOR_NO    DEPARTMENT_NO
+SELECT *
+FROM TB_DEPARTMENT; --CATEGORY                                     DEPARTMENT_NO
+
+/*
+9. 8 번의 결과 중 ‘인문사회’ 계열에 속핚 과목의 교수 이름을 찾으려고 핚다. 이에
+해당하는 과목 이름과 교수 이름을 출력하는 SQL 문을 작성하시오.
+*/
+--> 오라클
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_CLASS C, TB_CLASS_PROFESSOR A, TB_PROFESSOR P, TB_DEPARTMENT D
+WHERE C.CLASS_NO = A.CLASS_NO
+AND A.PROFESSOR_NO = P.PROFESSOR_NO
+AND P.DEPARTMENT_NO = D.DEPARTMENT_NO
+AND CATEGORY = '인문사회';
+--> ANSI
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_CLASS A
+JOIN TB_CLASS_PROFESSOR B USING (CLASS_NO)
+JOIN TB_PROFESSOR C USING (PROFESSOR_NO)
+JOIN TB_DEPARTMENT D ON (C.DEPARTMENT_NO = D.DEPARTMENT_NO)    -- 왜 안되는데,, 내가 조인 해줬잖아,,*****DEPARTMENT_NO 가 3개니까
+WHERE CATEGORY = '인문사회';
+
+/*
+10. ‘음악학과’ 학생들의 평점을 구하려고 핚다. 음악학과 학생들의 "학번", "학생 이름", 
+"젂체 평점"을 출력하는 SQL 문장을 작성하시오. (단, 평점은 소수점 1 자리까지맊
+반올림하여 표시핚다.)
+*/
+SELECT *
+FROM TB_GRADE;      -- STUDENT_NO
+SELECT *
+FROM TB_STUDENT;    -- STUDENT_NO, DEPARTMENT_NO
+SELECT *
+FROM TB_DEPARTMENT; --             DEPARTMENT_NO
+--> ANSY
+SELECT STUDENT_NO, STUDENT_NAME, ROUND(AVG(POINT),1)
+FROM TB_GRADE
+JOIN TB_STUDENT USING (STUDENT_NO)
+JOIN TB_DEPARTMENT USING (DEPARTMENT_NO)
+GROUP BY STUDENT_NO, STUDENT_NAME
+ORDER BY 1;
+--> 오라클
+SELECT G.STUDENT_NO, S.STUDENT_NAME, ROUND(AVG(POINT),1)
+FROM TB_GRADE G, TB_STUDENT S, TB_DEPARTMENT D
+WHERE G.STUDENT_NO = S.STUDENT_NO
+AND S.DEPARTMENT_NO = D.DEPARTMENT_NO
+AND DEPARTMENT_NAME = '음악학과'
+GROUP BY G.STUDENT_NO, S.STUDENT_NAME
+ORDER BY 1;
+
+/*
+11. 학번이 A313047 인 학생이 학교에 나오고 있지 않다. 지도 교수에게 내용을 젂달하기
+위핚 학과 이름, 학생 이름과 지도 교수 이름이 필요하다. 이때 사용핛 SQL 문을
+작성하시오. 단, 출력헤더는 ?학과이름?, ?학생이름?, ?지도교수이름?으로
+출력되도록 핚다.
+*/
 
 
--- 전체조회
-SELECT *
-FROM TB_STUDENT;
-SELECT *
-FROM TB_DEPARTMENT;
 
 
 
