@@ -43,7 +43,7 @@ SELECT * --EMP_NAME, EMAIL, PHONE, HIRE_DATE, SALARY
 FROM EMPLOYEE;
 
 /*
-    < 컬럽값을 통한 산술연산 >
+    < 컬럼값을 통한 산술연산 >
     SELECT절 컬럼명 작성 부분에 산술연산 기술 가능 (이때, 산술연산된 결과 조회)
 */
 -- EMPLOYEE 테이블의 사원명, 사원의연봉(급여 * 12) 조회
@@ -57,8 +57,10 @@ FROM EMPLOYEE;
 -- EMPLOYEE 테이블의 사원명, 급여, 보너스, 연봉, 보너스 포함된 연봉((급여+보너스*급여)*12) 조회
 SELECT EMP_NAME, SALARY, BONUS, SALARY * 12, ((SALARY + BONUS * SALARY)*12)
 FROM EMPLOYEE;
-
 --> 산술연산 과정 중 NULL 값이 존재할 경우, 산술연산한 결과값 마저도 무조건 NULL로 나옴
+--> NULL 값을 처리해보자!
+SELECT EMP_NAME, SALARY, NVL(BONUS, 0), SALARY * 12, ((SALARY + NVL(BONUS, 0) * SALARY)*12)
+FROM EMPLOYEE;
 
 -- EMPLOYEE 테이블의 사원명, 입사일
 SELECT EMP_NAME, HIRE_DATE
@@ -88,7 +90,6 @@ SELECT EMP_NAME 사원명, SALARY AS 급여, SALARY * 12 "연봉(원)", (SALARY + SALARY
 FROM EMPLOYEE;
 
 ------------------------------------------------------------------------------
-
 /*
     < 리터럴 >
     임의로 지정한 문자열('')
@@ -135,7 +136,7 @@ FROM EMPLOYEE; -- 중복제거 되어 7행만 조회
 SELECT DISTINCT DEPT_CODE
 FROM EMPLOYEE; -- null : 아직 부서배치 안된 사람
 
--- ** 유의 사항 : DISTINCT는 SELECT 절에 딱 한번만 기술 가능
+-- ** 유의 사항 : DISTINCT는 SELECT 절에 딱 한번만!! 기술 가능
 /* (구문오류. 2번썼기때문에)
 SELECT DISTINCT JOB_CODE, DISTINCT DEPT_CODE
 FROM EMPLOYEE;
@@ -274,7 +275,7 @@ WHERE HIRE_DATE BETWEEN '90/01/01' AND '01/01/01';
        
     >> '_' : 1글자 이상
     EX) 비교대상컬럼 LIKE '_문자'       => 비교대상의 컬럼값의 문자앞에 무조건 한글자만 올 경우 조회
-        비교대상컬럼 LIKE '__문자'      => 비교대상의 컬럼값의 문자앞에 무조건 두갈자가 올 경우 조회
+        비교대상컬럼 LIKE '__문자'      => 비교대상의 컬럼값의 문자앞에 무조건 두글자가 올 경우 조회
         비교대상컬럼 LIKE '_문자_'      => 비교대상의 컬럼값의 문자 앞과 문자 뒤에 무조건 한글자씩 올 경우 조회
     
 */
@@ -402,9 +403,9 @@ WHERE DEPT_CODE NOT IN ('D6', 'D8', 'D5');
 /*
     < 연산자 우선순위 >
     0. ()
-    1. 산술연산자
-    2. 연결연산자
-    3. 비교연산자
+    1. 산술연산자 :  +  -  /  * 
+    2. 연결연산자 :  || 
+    3. 비교연산자 :  >  <  =  >=  <=  !=  <>  ^= 
     4. IS NULL / LIKE '특정패턴' / IN
     5. BETWEEN AND
     6. NOT(논리연산자)
@@ -440,10 +441,10 @@ FROM EMPLOYEE
 WHERE SALARY BETWEEN 2000000 AND 5000000 AND HIRE_DATE >= '01/01/01' AND BONUS IS NULL;
 
 -- 5. 연봉(보너스포함)이 NULL이 아니고, 이름에 '하'가 포함되어 있는 사원들의 (사번, 사원명, 급여, 보너스포함연봉) 조회
-SELECT EMP_ID, EMP_NAME, SALARY, (SALARY + SALARY * BONUS)*12 AS "연봉"
+SELECT EMP_ID, EMP_NAME, SALARY, (SALARY + SALARY * BONUS)*12 AS "(보너스포함)연봉"
 FROM EMPLOYEE
 WHERE (SALARY + SALARY * BONUS)*12 IS NOT NULL AND EMP_NAME LIKE '%하%';
---WHERE BONUS IS NOT NULL AND EMP_NAME LIKE '%하%';  <= 이것도 가능. BONUS에 어차피 NULL있으니까
+--WHERE BONUS IS NOT NULL AND EMP_NAME LIKE '%하%';  <= 이것도 가능
 
 ---------------------------------------------------------------------------------
 SELECT EMP_ID, EMP_NAME, SALARY --3
@@ -465,16 +466,16 @@ WHERE DEPT_CODE IS NULL; --2
     - ASC   : 오름차순 정렬 (생략시 기본값)
     - DESC  : 내림차순 정렬
     
-    - NULLS FIRST   : 정렬하고자 하는 컬럼값에 NULL이 있을 경우, 해당 데이터를 맨 '앞'에 배치 (생략시 DESC일때의 기본값)
     - NULLS LAST    : 정렬하고자 하는 컬럼값에 NULL이 있을 경우, 해당 데이터를 맨 '뒤'에 배치 (생략시 ASC일때의 기본값)
+    - NULLS FIRST   : 정렬하고자 하는 컬럼값에 NULL이 있을 경우, 해당 데이터를 맨 '앞'에 배치 (생략시 DESC일때의 기본값)
 */
 
 SELECT *
 FROM EMPLOYEE
 --ORDER BY BONUS;
---ORDER BY BONUS ASC;               -- 오름차순 정렬일 때 기본적으로 NULLS LAST 구나!
+--ORDER BY BONUS ASC;               -- 오름차순(ASC) 정렬일 때 기본적으로 NULLS LAST 구나!
 --ORDER BY BONUS ASC NULLS FIRST;
---ORDER BY BONUS DESC;              -- 내림차순 정렬일 때 기본적으로 NULLS FIRST 구나!
+--ORDER BY BONUS DESC;              -- 내림차순(DESC) 정렬일 때 기본적으로 NULLS FIRST 구나!
 --ORDER BY BONUS DESC NULLS LAST;
 ORDER BY BONUS DESC, SALARY ASC;    -- 정렬기준 여러개 제시 가능 (첫번째 기준의 컬럼값이 동일한 경우, 두번째 기준 컬럼가지고 정렬)
 
@@ -484,3 +485,9 @@ FROM EMPLOYEE   --1
 --ORDER BY SALARY*12 DESC;
 --ORDER BY 연봉 DESC;   --3 (가장 마지막 우선순위를 갖기 때문에 별칭 사용 가능)
 ORDER BY 2 DESC;        -- (컬럼 순서 사용 가능. 단, 컬럼 개수보다 큰 숫자 안됨)
+
+-- ** 내림차순(NULL, 9, 8 ... 1) 그치만 NULL값이 뒤로 가도록 해보자! (9, 8, ... 1, NULL)
+SELECT EMP_NAME, BONUS
+FROM EMPLOYEE
+ORDER BY 2 DESC NULLS LAST;
+

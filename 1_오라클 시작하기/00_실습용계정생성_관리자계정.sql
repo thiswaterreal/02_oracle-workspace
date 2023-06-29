@@ -20,3 +20,4 @@ CREATE USER scott IDENTIFIED BY tiger; -- 계정명은 대소문자 안가림
 -- [표현법] GRANT 권한1, 권한2, .. TO 계정명
 >>>>>>> 042551df99d82c5bf9fac8ae4cbc3bdc74035a75
 GRANT RESOURCE, CONNECT TO scott;
+
