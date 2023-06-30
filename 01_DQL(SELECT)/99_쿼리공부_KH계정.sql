@@ -6,12 +6,12 @@ FROM EMPLOYEE
 WHERE BONUS = NULL AND DEPT_CPDE != NULL;
 -- NULL 값에 대해 정상적으로 비교 처리 되지 않음! 왜?
 
---> 문제점     : NULL값 비교할때는 단순한 일반 비교연산자를 통해 비교할 수 없음!
+--> 문제점      : NULL값 비교할때는 단순한 일반 비교연산자를 통해 비교할 수 없음!
 --> 해결방법    : IS NULL / IS NOT NULL 연산자를 이용하여 비교해야함
 --> 조치한 SQL문
 SELECT *
 FROM EMPLOYEE
-WHERE BONUS IS NULL AND DEPT_CPDE IS NOT NULL;
+WHERE BONUS IS NULL AND DEPT_CODE IS NOT NULL;
 
 ------------------------------- QUIZ 2 --------------------------------
 -- 검색하고자 하는 내용
@@ -49,7 +49,7 @@ AND EMAIL LIKE '___$_%' ESCAPE '$' AND BONUS IS NOT NULL;
 -- [계정생성구문] CREATE USER 계정명 IDENTIFIED BY 비밀번호;
 
 -- 계정명 : SCOTT, 비밀번호 : TIGER 계정을 생성하고 싶다!
--- 이때 일반사용자 계정인 KH계정에 접속해서 CREATE USER SCOTT; 로 실행하니 문제 발생!
+-- 이때 일반 사용자 계정인 KH계정에 접속해서 CREATE USER SCOTT; 로 실행하니 문제 발생!
 
 --> 문제점
 -- 1. 사용자 계정 생성은 무조건!! 관리자 계정에서만 가능!!
@@ -68,11 +68,6 @@ AND EMAIL LIKE '___$_%' ESCAPE '$' AND BONUS IS NOT NULL;
 --> 조치내용
 -- 1. GRANT CONNECT, RESOURCE TO SCOTT; 구문 실행하여 권한 부여!!
 
-------------------------------------------------------------------------
--- 부서코드가 D5인 사원들의 총 연봉 합
-SELECT SUM(SALARY * 12)   -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수 쓰면 오류남 *****
-FROM EMPLOYEE
-WHERE DEPT_CODE = 'D5';
 
 ------------------------------------------------------------------------
 -- 5. COUNT(*|컬럼|DISTINCT 컬럼) : 조회된 행 개수를 세서 반환
@@ -102,20 +97,42 @@ FROM EMPLOYEE;
 -- 현재 사원들이 몇개의 부서에 분포되어있는지
 SELECT COUNT(DISTINCT DEPT_CODE)    --6 (D1 D2 D5 D6 D8 D9)
 FROM EMPLOYEE;
-----------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+-- 부서코드가 D5인 사원들의 총 연봉 합
+SELECT SUM(SALARY * 12)                                 -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수 쓰면 오류남 *****
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5';
+
+------------------------------------------------------------------------
+-- 부서별 평균 급여가 300만원 이상인 부서들만 조회
+SELECT DEPT_CODE, AVG(SALARY)
+FROM EMPLOYEE
+WHERE AVG(SALARY) >= 3000000                             -- (오류!!) 그룹함수 가지고 조건 제시시, WHERE 절에서 X
+GROUP BY DEPT_CODE;
+
+SELECT DEPT_CODE, AVG(SALARY)   -- 4
+FROM EMPLOYEE   -- 1
+GROUP BY DEPT_CODE  -- 2
+HAVING AVG(SALARY) >= 3000000;  -- 3                      -- HAVING 에서 해야함
+
+------------------------------------------------------------------------
+
+-- 여자 사원 수
+SELECT SUBSTR(EMP_NO, 8, 1) IN ('2', '4'), COUNT(*)                  -- (오류!!) 뭘까.. SUBSTR(EMP_NO, 8, 1) IN ('2') 이게 값 하나니까?
+FROM EMPLOYEE   
+WHERE SUBSTR(EMP_NO, 8, 1) IN ('2', '4');    
 
 -- 여자 사원 수 
-SELECT COUNT(*) -- 3
-FROM EMPLOYEE   -- 1
-WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
+SELECT COUNT(*) 
+FROM EMPLOYEE  
+WHERE SUBSTR(EMP_NO, 8, 1) IN ('2', '4');  
 
--- GROUP BY로 묶으면?   //뭘까뭘까뭘까
-SELECT SUBSTR(EMP_NO, 8, 1) IN ('2'), COUNT(*) -- 3
-FROM EMPLOYEE   -- 1
-WHERE SUBSTR(EMP_NO, 8, 1);    -- 2 
+-- GROUP BY 절에 함수식 수
+SELECT DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남', '2', '여'), COUNT(*)   -- 넌 두개니까 COUNT랑 투게더 가능?
+FROM EMPLOYEE
+GROUP BY SUBSTR(EMP_NO, 8, 1);
 
--- GROUP BY 절에 함수식 기술 가능
--- 남/여별 총 사원 수
-SELECT DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남', '2', '여'), COUNT(*)
+SELECT SUBSTR(EMP_NO, 8, 1), COUNT(*)   
 FROM EMPLOYEE
 GROUP BY SUBSTR(EMP_NO, 8, 1);
