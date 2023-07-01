@@ -1,5 +1,5 @@
 /*
-    * 서브쿼리 (SUBQUERY)
+    * 서브쿼리 (SUBQUERY) == '부조회'
     - 하나의 SQL문 안에 포함된 또 다른 SELECT문
     - 메인 SQL문을 위해 보조 역할을 하는 쿼리문
 */
@@ -25,7 +25,6 @@ WHERE DEPT_CODE = (SELECT DEPT_CODE
                    
 -- 간단 서브쿼리 예시 2
 -- 전 직원의 평균급여보다 더 많은 급여를 받는 사원들의 사번, 이름, 직급코드, 급여 조회
-
 -- 1) 전 직원의 평균 급여 조회
 SELECT AVG(SALARY)
 FROM EMPLOYEE;      -- 대략 3047663원 인걸 알아냄
@@ -86,7 +85,7 @@ WHERE SALARY > (SELECT SALARY
 -- >> 오라클 전용구문
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY, DEPT_TITLE
 FROM EMPLOYEE, DEPARTMENT
-WHERE DEPT_CODE = DEPT_ID
+WHERE (DEPT_CODE = DEPT_ID)
 AND SALARY > (SELECT SALARY
               FROM EMPLOYEE
               WHERE EMP_NAME = '노옹철');
@@ -154,7 +153,7 @@ AND EMP_NAME != '전지연';
     2. 다중행 서브쿼리 (MULTI ROW SUBQUERY)
     서브쿼리를 수행할 결과값이 여러 행 일때 (컬럼(열)의 한개)
     
-    - IN 서브쿼리 : 여러개의 결과값 중에서 한개라도 일치하는 값이 있다면   // = 대신?
+    - IN 서브쿼리 : 여러개의 결과값 중에서 한개라도 일치하는 값이 있다면   // '=' 대신 같은 느낌
     
     - > ANY 서브쿼리 : 여러개의 결과값 중에서 '한개라도' 클 경우 (여러개의 결과값 중에서 가장 작은 값 보다 클 경우)
     - < ANY 서브쿼리 : 여러개의 결과값 중에서 '한개라도' 작을 경우 (여러개의 결과값 중에서 가장 큰 값 보다 작은 경우)
@@ -192,7 +191,7 @@ WHERE JOB_CODE IN (SELECT JOB_CODE
                    
 ----------------------------------------
 -- 사원 => 대리 => 과장 => 차장 => 부장 ..
--- 2) 대리 직급임에도 불구하고/ 과장 직급 급여들 중 최소 급여'보다 < 많이 받는 (대리)직원 조회 (사번, 이름, 직급, 급여)
+-- 2) (대리 직급임에도 불구하고) 과장 직급 급여들' 중 최소 급여보다 < 많이 받는 (대리)직원 조회 (사번, 이름, 직급, 급여)
 -- 2_1) 먼저 과장 직급인 사원들의 급여 조회
 SELECT SALARY
 FROM EMPLOYEE E, JOB J
@@ -239,7 +238,7 @@ AND SALARY > (SELECT MIN(SALARY)
                   AND JOB_NAME = '과장');
 */
 -----------------------------------------                  
--- 3) 과장 직급임에도 불구하고 차장 직급인 사원들의 모든 급여'보다도 더 많이 받는 사원들의 사번, 이름, 직급명, 급여 조회
+-- 3) (과장 직급임에도 불구하고) 차장 직급인 사원들의 모든 급여'보다도 더 많이 받는 사원들의 사번, 이름, 직급명, 급여 조회
 SELECT EMP_ID, EMP_NAME, JOB_NAME, SALARY
 FROM EMPLOYEE
 JOIN JOB USING (JOB_CODE)
@@ -294,6 +293,12 @@ WHERE (JOB_CODE, MANAGER_ID) = (SELECT JOB_CODE, MANAGER_ID
                                 FROM EMPLOYEE
                                 WHERE EMP_NAME = '박나라');      -- J7, 207 (JOB_CODE, MANAGER_ID)
 
+
+
+-- 1. 찾고자하는 핵심!! (메인 컬럼)이 무엇인지 생각
+-- 2. 부조회 : 'SELECT 메인 컬럼' 을 필두로 촤라락 작성
+-- 3. 메인조회 : WHERE 절에 (메인컬럼) = (부조회)
+
 --==================================< 다중열 다중열 서브쿼리 >===================================
 /*
     4. 다중행 다중열 서브쿼리
@@ -326,7 +331,7 @@ SELECT DEPT_CODE, MAX(SALARY)
 FROM EMPLOYEE
 GROUP BY DEPT_CODE;
 
-SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+SELECT EMP_ID, EMP_NAME, JOB_CODE, SALARY
 FROM EMPLOYEE
 WHERE (DEPT_CODE, SALARY) IN (SELECT DEPT_CODE, MAX(SALARY)
                               FROM EMPLOYEE
@@ -353,7 +358,7 @@ FROM EMPLOYEE;
 SELECT EMP_NO, EMP_NAME, 연봉, DEPT_CODE  -- ,MANAGER_ID 불가. 내가 각색한 테이블에 없기 때문
 FROM (SELECT EMP_NO, EMP_NAME, (SALARY + SALARY * NVL(BONUS, 0))*12 AS "연봉", DEPT_CODE
 FROM EMPLOYEE)  -- 1
-WHERE 연봉 >= 30000000;   -- 2
+WHERE 연봉 >= 30000000;   -- 2 (별칭을 적어!!)
 
 -- >> 인라인 뷰를 주로 사용하는 예  =>  TOP-N 분석 (상위 몇개만 보여주고 싶을 때 : BEST 상품!)
 
@@ -405,11 +410,17 @@ SELECT * --EMP_NAME, SALARY, HIRE_DATE
 FROM EMPLOYEE
 ORDER BY HIRE_DATE DESC;     --정렬끝
 
-SELECT ROWNUM, EMP_NAME, SALARY, HIRE_DATE
+--> ROWNUM
+SELECT *    --ROWNUM, EMP_NAME, SALARY, HIRE_DATE
 FROM (SELECT EMP_NAME, SALARY, HIRE_DATE
         FROM EMPLOYEE
         ORDER BY HIRE_DATE DESC)
 WHERE ROWNUM <= 5;
+--> RANK() OVER (정렬기준)
+SELECT *   --EMP_NAME, SALARY, HIRE_DATE, 순위
+FROM (SELECT EMP_NAME, SALARY, HIRE_DATE, RANK() OVER(ORDER BY HIRE_DATE DESC) AS "순위"
+        FROM EMPLOYEE)
+WHERE 순위 <= 5;
 
 -- 2. 각 부서별 평균급여가 가장 높은 3개의 부서 조회 (부서코드, 평균급여)
 SELECT DEPT_CODE, FLOOR(AVG(SALARY))
@@ -423,14 +434,14 @@ FROM (SELECT DEPT_CODE, FLOOR(AVG(SALARY))
         GROUP BY DEPT_CODE
         ORDER BY AVG(SALARY) DESC) E
 WHERE ROWNUM <= 3;
-/*
-SELECT ROWNUM, DEPT_CODE, FLOOR(AVG(SALARY)     -- 얘는 왜 안돼?
+
+SELECT ROWNUM, DEPT_CODE, FLOOR(AVG(SALARY)     -- 얘는 왜 안돼? 그룹으로 묶은적이 없으니까 그룹함수도 쓸 수 없지..
 FROM (SELECT DEPT_CODE, FLOOR(AVG(SALARY))
         FROM EMPLOYEE
         GROUP BY DEPT_CODE
-        ORDER BY AVG(SALARY) DESC)
+        ORDER BY AVG(SALARY) DESC) 
 WHERE ROWNUM <= 3;
-*/
+
 
 -- 별칭줘서도 해보자
 SELECT ROWNUM, FLOOR(평균급여)

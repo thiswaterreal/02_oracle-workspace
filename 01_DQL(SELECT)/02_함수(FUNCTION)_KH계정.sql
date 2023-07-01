@@ -54,8 +54,10 @@ SELECT INSTR('AABAACAABBAA', 'B', -1) FROM DUAL;    --(10)
 SELECT INSTR('AABAACAABBAA', 'B', 1, 2) FROM DUAL;  --(9)
 SELECT INSTR('AABAACAABBAA', 'B', -1, 3) FROM DUAL;  --(3)
 
-SELECT EMAIL, INSTR(EMAIL, '_', 1, 1) AS "_위치", INSTR(EMAIL, '@') AS "@위치"
-FROM EMPLOYEE; --12:35
+--SELECT EMAIL, INSTR(EMAIL, '_', 1, 1) AS "_위치", INSTR(EMAIL, '@') AS "@위치"
+SELECT EMAIL, INSTR (EMAIL, '_')
+FROM EMPLOYEE;
+
 
 ---------------------------------------------------------------------------------
 /*
@@ -267,10 +269,11 @@ SELECT SYSDATE FROM DUAL;
     * MONTHS_BETWEEN(DATE1, DATE2) : 두 날짜 사이의 개월 수 => 내부적으로 DATE1 - DATE2 후 나누기 30,31 이 진행됨
                                      => 결과값은  NUMBER 타입
 */
--- EMPLOYEE 에서 사원명, 입사일, 근무년수, 근무일수, 근무개월수
+-- EMPLOYEE 에서 사원명, 입사일, 근무일수, 근무개월수, 근무년수
 SELECT EMP_NAME, HIRE_DATE, 
 FLOOR(SYSDATE - HIRE_DATE) || '일' AS "근무일수",
-CEIL(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)) || '개월' AS "근무개월수"
+CEIL(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)) || '개월' AS "근무개월수",
+FLOOR(MONTHS_BETWEEN(SYSDATE, HIRE_DATE)/12) || '년' AS "근무년수"
 FROM EMPLOYEE;
 
 ---------------------------------------------------------------------------------
@@ -291,7 +294,7 @@ FROM EMPLOYEE;
 */
 SELECT SYSDATE, NEXT_DAY(SYSDATE, '금요일') FROM DUAL;
 SELECT SYSDATE, NEXT_DAY(SYSDATE, '금') FROM DUAL;
--- 1.일, 2.월, 3.화, ....
+-- 1.일, 2.월, 3.화, .... 7.토
 SELECT SYSDATE, NEXT_DAY(SYSDATE, 6) FROM DUAL;
 SELECT SYSDATE, NEXT_DAY('20230329', 7) FROM DUAL;
 SELECT SYSDATE, NEXT_DAY('2023/03/29', 7) FROM DUAL;
@@ -301,15 +304,15 @@ SELECT SYSDATE, NEXT_DAY(SYSDATE, 'FRIDAY') FROM DUAL;  -- 불가능. 현재 언어가 K
 -- 언어 변경
 SELECT * FROM NLS_SESSION_PARAMETERS;
 
+ALTER SESSION SET NLS_LANGUAGE = AMERICAN;
+ALTER SESSION SET NLS_LANGUAGE = KOREAN;
+
 ---------------------------------------------------------------------------------
 /*
     * LAST_DAY(DATE) : 해당 월의 마지막 날짜를 구해서 반환
                         => 결과값은 DATE 타입
 */
 SELECT LAST_DAY(SYSDATE) FROM DUAL;
-
-ALTER SESSION SET NLS_LANGUAGE = AMERICAN;
-ALTER SESSION SET NLS_LANGUAGE = KOREAN;
 
 -- EMPLOYEE 에서 사원명, 입사일, 입사한 달의 마지막 날짜, 입사한 달에 근무한 일수
 SELECT EMP_NAME, HIRE_DATE, LAST_DAY(HIRE_DATE), LAST_DAY(HIRE_DATE) - HIRE_DATE
@@ -328,11 +331,14 @@ FROM EMPLOYEE;
 
 -- 사원명, 입사년도, 입사월, 입사일 조회
 SELECT EMP_NAME,
-EXTRACT(YEAR FROM HIRE_DATE) AS "입사년도",
-EXTRACT(MONTH FROM HIRE_DATE) AS "입사월",
-EXTRACT(DAY FROM HIRE_DATE) AS "입사일"
+        EXTRACT(YEAR FROM HIRE_DATE) AS "입사년도",
+        EXTRACT(MONTH FROM HIRE_DATE) AS "입사월",
+        EXTRACT(DAY FROM HIRE_DATE) AS "입사일"
 FROM EMPLOYEE
 ORDER BY "입사년도", "입사월", "입사일";
+
+SELECT EXTRACT (YEAR FROM SYSDATE)
+FROM DUAL;
 
 --======================================= 형변환 함수 =========================================
 /*
@@ -350,27 +356,32 @@ SELECT TO_CHAR(1234, '$99999') FROM DUAL;   --($1234)
 
 SELECT TO_CHAR(1234, 'L999,999') FROM DUAL;  --(￦1,234)
 
-SELECT EMP_NAME, TO_CHAR(SALARY, 'L999,999,999')    --(￦8,000,000)
+SELECT EMP_NAME, TO_CHAR(SALARY, 'L999,999,999')    --(￦8,000,000) / 9 = 공백 / 0 = 0채움 **
 FROM EMPLOYEE;
 
 -- 날짜타입 => 문자타입 (존재하는 포맷)
 SELECT SYSDATE FROM DUAL;                       -- (연필나오는) 찐 달력
 SELECT TO_CHAR(SYSDATE) FROM DUAL;              -- '23/06/23'
+
 SELECT TO_CHAR(SYSDATE, 'PM HH:MI:SS') FROM DUAL;   -- HH   : 12시간 형식
 SELECT TO_CHAR(SYSDATE, 'HH24:MI:SS') FROM DUAL;    -- HH24 : 24시간 형식
-SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD DAY DY')FROM DUAL;
-SELECT TO_CHAR(SYSDATE, 'MON, YYYY') FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD DAY DY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YYYY/MM/DD') FROM DUAL;
 SELECT TO_CHAR(SYSDATE, 'YYYY, MM, YY') FROM DUAL;
+SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD') FROM DUAL;
+
+SELECT TO_CHAR(SYSDATE, 'MON, YYYY') FROM DUAL;
 SELECT TO_CHAR(SYSDATE, 'YEAR, MONTH, DD, DAY') FROM DUAL;
 
 SELECT EMP_NAME, HIRE_DATE, TO_CHAR(HIRE_DATE, 'YYYY-MM-DD')
 FROM EMPLOYEE;
 
 -- ex) 1990년 02월 06일 형식으로
-SELECT TO_CHAR(HIRE_DATE, 'YYYY년 MM월 DD일')  -- 없는 포맷 제시할 경우, "" 로 묶기
+SELECT TO_CHAR(HIRE_DATE, 'YYYY년 MM월 DD일')          --  오류! 없는 포맷 제시할 경우, "" 로 묶기
 FROM EMPLOYEE;
 
-SELECT TO_CHAR(HIRE_DATE, 'YYYY"년" MM"월" DD"일"')  -- 이제 된당
+SELECT TO_CHAR(HIRE_DATE, 'YYYY"년" MM"월" DD"일"')    -- 이제 된당 **
 FROM EMPLOYEE;
 
 -- 년도와 관련된 포맷
@@ -406,18 +417,18 @@ FROM DUAL;
     TO_DATE(숫자|문자, [포맷])
 */
 
-SELECT TO_DATE(20100101) FROM DUAL;     --(10/01/01)
-SELECT TO_DATE(100101) FROM DUAL;       --(10/01/01)
+SELECT TO_DATE(20100101) FROM DUAL;      --(10/01/01)
+SELECT TO_DATE(100101) FROM DUAL;        --(10/01/01)
 
-SELECT TO_DATE(070101) FROM DUAL;   -- 에러!!
-SELECT TO_DATE('070101') FROM DUAL; -- 첫글자가 0인 경우, 문자타입으로 변경하고 해야함
+SELECT TO_DATE(070101) FROM DUAL;        -- 에러!!
+SELECT TO_DATE('070101') FROM DUAL;      -- 첫글자가 0인 경우, 문자타입으로 변경하고 해야함 **
 
 SELECT TO_DATE('041030 143000') FROM DUAL;                      -- 에러!!
 SELECT TO_DATE('041030 143000', 'YYMMDD HH24MISS') FROM DUAL;   -- 포맷을 정해주면 가능해짐
 
 SELECT TO_DATE('140630', 'YYMMDD') FROM DUAL;   --(2014년)
 SELECT TO_DATE('980630', 'YYMMDD') FROM DUAL;   --(2098년)   => YY : 무조건 현재세기로 반영.. 20을 붙임
-SELECT TO_DATE('980630', 'RRMMDD') FROM DUAL;   --(1998년)   => RR : 해당 두자리 년도 값이 50 미만이면 20붙임, 50이상이면 19붙임
+SELECT TO_DATE('980630', 'RRMMDD') FROM DUAL;   --(1998년)   => RR : 해당 두자리 년도 값이 50 미만이면 20붙이고, 50이상이면 19붙임 **
 
 ---------------------------------------------------------------------------------
 /*
@@ -430,7 +441,7 @@ SELECT TO_NUMBER('05123475') FROM DUAL;     -- 0이 빠져서 숫자타입으로 저장됨
 
 SELECT '10000000' + '55000' FROM DUAL;      -- 오라클에서는 자동형변환 잘되어있음
 --SELECT '10,000,000' + '55,000' FROM DUAL;   -- 오류!! 안에 숫자만 있어야 자동형변환 됨
-SELECT TO_NUMBER('10,000,000', '99,999,999') + TO_NUMBER('55,000', '99,999') FROM DUAL; --강제형변환
+SELECT TO_NUMBER('10,000,000', '99,999,999') + TO_NUMBER('55,000', '99,999') FROM DUAL;     -- 강제형변환 **
 
 --======================================= NULL 처리 함수 =========================================
 /*
@@ -443,7 +454,7 @@ SELECT EMP_NAME, BONUS, NVL(BONUS, 0)
 FROM EMPLOYEE;
 
 -- 전 사원의 이름, (보너스 포함)연봉
-SELECT EMP_NAME, (SALARY + SALARY * BONUS)*12, (SALARY + SALARY * NVL(BONUS, 0))*12
+SELECT EMP_NAME, (SALARY + SALARY * BONUS)*12, (SALARY + SALARY * NVL(BONUS, 0))*12     --**
 FROM EMPLOYEE;
 
 -- 전 사원의 부서코드, 부서 유무
@@ -490,7 +501,8 @@ SELECT NULLIF('123', '456') FROM DUAL;      --(123)
 
 -- 사번, 사원명, 주민번호
 SELECT EMP_ID, EMP_NAME, EMP_NO, SUBSTR(EMP_NO, 8, 1),
-DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남', '2', '여') AS "성별"
+DECODE(SUBSTR(EMP_NO, 8, 1), '1', '남',
+                             '2', '여') AS "성별"
 FROM EMPLOYEE;
 
 -- 직원의 급여 조회시 각 직급별로 인상해서 조회
@@ -520,7 +532,6 @@ FROM EMPLOYEE;
     
     => 자바에서의 IF -  ELSE IF - ELSE 문과 유사 (조건절)
 */
-
 SELECT EMP_NAME, SALARY,
        CASE WHEN SALARY >= 5000000 THEN '고급 개발자'
             WHEN SALARY >= 3500000 THEN '중급 개발자'
@@ -528,7 +539,16 @@ SELECT EMP_NAME, SALARY,
        END AS "레벨"
 FROM EMPLOYEE;
 
---=======================================< // 그룹 함수 // >=========================================
+/*
+SELECT CASE WHEN 이조건이면 THEN 뭐
+            WHEN 이조건이면 THEN 뭐
+            WHEN 이조건이면 THEN 뭐
+            ELSE 뭐
+        END
+FROM EMPLOYEE;
+*/
+
+--=======================================< 그룹 함수 (SUM, AVG, COUND, MIN, MAX) >=========================================
 -- 1. SUM(숫자타입컬럼) : 해당 컬럼 값들의 총 합계를 구해서 반환해주는 함수
 
 -- EMPLOYEE 테이블의 전 사원의 급여 합
@@ -547,7 +567,12 @@ WHERE DEPT_CODE = 'D5';
 
 ---------------------------------------------------------------------------------
 -- 2. AVG(숫자타입) ; 해당 컬럼값들의 평균값을 구해서 반환
+-- 사원들의 평균 급여(=월급)
 SELECT ROUND(AVG(SALARY))
+FROM EMPLOYEE;
+
+-- 사원들의 평균 연봉
+SELECT ROUND(AVG(SALARY*12))
 FROM EMPLOYEE;
 
 ---------------------------------------------------------------------------------
@@ -564,7 +589,7 @@ FROM EMPLOYEE;
 -- 5. COUNT(*|컬럼|DISTINCT 컬럼) : 조회된 행 개수를 세서 반환
 
 --    COUNT(*)            : 조회된 결과의 모든 행 개수를 세서 반환
---    COUNT(컬럼)          : 제시한 해당 컬럼값이 NULL이 아닌것만 행 개수 세서 반환
+--    COUNT(컬럼)          : 제시한 해당 컬럼값이 NULL이 아닌것만 행 개수 세서 반환 *********(NULL 값은 세지 X!!!)
 --    COUNT(DISTINCT 컬럼) : 해당 컬럼값 중복을 제거한 후 행 개수 세서 반환
 
 -- 전체 사원 수
@@ -577,7 +602,7 @@ FROM EMPLOYEE   -- 1
 WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
 
 -- 보너스를 받는 사원 수
-SELECT COUNT(BONUS) -- 컬럼이 NULL이 아닌!!것만(값 존재) 카운팅함
+SELECT COUNT(BONUS) -- 컬럼이 NULL이 아닌!!것만(값 존재) 카운팅 함 **********
 FROM EMPLOYEE;
 --WHERE BONUS IS NOT NULL;
 

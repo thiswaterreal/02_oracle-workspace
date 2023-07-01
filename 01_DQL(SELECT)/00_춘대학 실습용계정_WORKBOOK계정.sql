@@ -3,13 +3,14 @@
 -- DDL (2,3번)
 -- (+) SQL 200제 (76까지)
 
--- <전체조회>
+/* -- <전체조회>
 SELECT * FROM TB_CLASS; 
 SELECT * FROM TB_CLASS_PROFESSOR;
 SELECT * FROM TB_DEPARTMENT;
 SELECT * FROM TB_GRADE;
 SELECT * FROM TB_PROFESSOR;
 SELECT * FROM TB_STUDENT;
+*/
 
 --=================================[ Basic SELECT ]=======================================
 /*
@@ -31,8 +32,9 @@ FROM TB_DEPARTMENT;
 */
 SELECT STUDENT_NAME
 FROM TB_STUDENT
-WHERE DEPARTMENT_NO = '001' AND SUBSTR(STUDENT_SSN, 8, 1) IN ('2', '4')
-      AND ABSENCE_YN = 'Y'; 
+WHERE DEPARTMENT_NO = '001' 
+AND SUBSTR(STUDENT_SSN, 8, 1) IN ('2', '4')
+AND ABSENCE_YN = 'Y'; 
 
 /*
 4. 도서관에서 대출 도서 장기 연체자 들을 찾아 이름을 게시하고자 핚다. 그 대상자들의
@@ -78,7 +80,8 @@ WHERE PREATTENDING_CLASS_NO IS NOT NULL;
 9. 춘 대학에는 어떤 계열(CATEGORY)들이 있는지 조회해보시오.
 */
 SELECT DISTINCT(CATEGORY)
-FROM TB_DEPARTMENT;
+FROM TB_DEPARTMENT
+ORDER BY 1;
 
 /*
 10. 02 학번 젂주 거주자들의 모임을 맊들려고 핚다. 휴학핚 사람들은 제외핚 재학중인
@@ -86,7 +89,9 @@ FROM TB_DEPARTMENT;
 */
 SELECT STUDENT_NO, STUDENT_NAME, STUDENT_SSN
 FROM TB_STUDENT
-WHERE SUBSTR(ENTRANCE_DATE, 1, 2) = '02' AND STUDENT_ADDRESS LIKE '%전주%' AND ABSENCE_YN = 'N';
+WHERE SUBSTR(ENTRANCE_DATE, 1, 2) = '02' 
+AND STUDENT_ADDRESS LIKE '%전주%' 
+AND ABSENCE_YN = 'N';
 
 --=================================[ Additional SELECT - 함수 ]=======================================
 /*
@@ -94,7 +99,7 @@ WHERE SUBSTR(ENTRANCE_DATE, 1, 2) = '02' AND STUDENT_ADDRESS LIKE '%전주%' AND A
 순으로 표시하는 SQL 문장을 작성하시오.( 단, 헤더는 "학번", "이름", "입학년도" 가
 표시되도록 핚다.)
 */
-SELECT STUDENT_NO, STUDENT_NAME, ENTRANCE_DATE
+SELECT STUDENT_NO AS "학번", STUDENT_NAME AS "이름", TO_CHAR(ENTRANCE_DATE, 'YYYY-MM-DD') AS "입학년도"
 FROM TB_STUDENT
 WHERE DEPARTMENT_NO = '002'
 ORDER BY 2;
@@ -108,6 +113,10 @@ SELECT PROFESSOR_NAME, PROFESSOR_SSN
 FROM TB_PROFESSOR
 WHERE PROFESSOR_NAME NOT LIKE '___';
 
+-- 또 다른 방법
+SELECT PROFESSOR_NAME, PROFESSOR_SSN FROM TB_PROFESSOR
+WHERE LENGTH(PROFESSOR_NAME) != 3;
+
 /*
 3. 춘 기술대학교의 남자 교수들의 이름과 나이를 출력하는 SQL 문장을 작성하시오. 단
 이때 나이가 적은 사람에서 맋은 사람 순서로 화면에 출력되도록 맊드시오. (단, 교수 중
@@ -115,7 +124,8 @@ WHERE PROFESSOR_NAME NOT LIKE '___';
 계산핚다.)
 */ --제상철 : 42살 맞음
 SELECT PROFESSOR_NAME AS "교수이름", 
-       FLOOR(MONTHS_BETWEEN(SYSDATE, TO_DATE('19' || SUBSTR(PROFESSOR_SSN, 1, 6), 'YYYYMMDD'))/12) AS "(만)나이"
+       EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE('19' || SUBSTR(PROFESSOR_SSN, 1, 6))) AS "(만)나이"
+       --FLOOR(MONTHS_BETWEEN(SYSDATE, TO_DATE('19' || SUBSTR(PROFESSOR_SSN, 1, 6), 'YYYYMMDD'))/12) AS "(만)나이"   <- 이걸로 하면 개월/12라 나이가 애매하게 측정됨
 FROM TB_PROFESSOR
 WHERE SUBSTR(PROFESSOR_SSN, 8, 1) IN ('1', '3')
 ORDER BY 2;
@@ -127,11 +137,15 @@ ORDER BY 2;
 SELECT LTRIM(PROFESSOR_NAME, SUBSTR(PROFESSOR_NAME,1,1)) AS "이름"
 FROM TB_PROFESSOR;
 
+-- 또 다른 방법
+SELECT SUBSTR(PROFESSOR_NAME,2,LENGTH(PROFESSOR_NAME)-1) AS "이름 "
+FROM TB_PROFESSOR;
+
 /*
 5. 춘 기술대학교의 재수생 입학자를 구하려고 한다. 어떻게 찾아낼 것인가?
 이때, 19 살에 입학하면 재수를 하지 않은 것으로 간주한다.
 -- 입학년도 - 내가 태어난 년도
--- 2010 - 1990 = 20살,,
+-- 2014 - 1995 = 19살
 */
 SELECT STUDENT_NO, STUDENT_NAME
 FROM TB_STUDENT
@@ -172,7 +186,7 @@ FROM DUAL;
 SELECT STUDENT_NO, STUDENT_NAME
 FROM TB_STUDENT
 WHERE STUDENT_NO NOT LIKE 'A%';
-
+--WHERE SUBSTR(STUDENT_NO,1,1) != 'A';   :(또 다른 방법)
 /*
 9. 학번이 A517178 인 한아름 학생의 학점 총 평점을 구하는 SQL 문을 작성하시오. 단,
 이때 출력 화면의 헤더는 "평점" 이라고 찍히게 하고, 점수는 반올림하여 소수점 이하 한
@@ -202,7 +216,7 @@ WHERE COACH_PROFESSOR_NO IS NULL;
 단, 이때 출력 화면의 헤더는 "년도", "년도 별 평점" 이라고 찍히게 하고, 점수는 반올림하여
 소수점 이하 핚 자리까지맊 표시핚다.
 */
---ROUND(AVG(POINT), 1) AS "평점"
+--ROUND(AVG(POINT), 1) AS "평점(평균점수)"
 
 SELECT SUBSTR(TERM_NO, 1, 4) AS "년도", ROUND(AVG(POINT),1) AS "년도 별 평점"
 FROM TB_GRADE
@@ -214,7 +228,7 @@ ORDER BY 1;
 13. 학과 별 휴학생 수를 파악하고자 핚다. 학과 번호와 휴학생 수를 표시하는 SQL 문장을
 작성하시오.
 */
---SELECT DEPARTMENT_NO, COUNT(DECODE(ABSENCE_YN, 'Y', 1)) 
+--SELECT DEPARTMENT_NO, COUNT(DECODE(ABSENCE_YN, 'Y', '*'))   :(또 다른 방법)
 SELECT DEPARTMENT_NO AS "학과코드명", NVL(SUM(DECODE(ABSENCE_YN, 'Y', 1)), 0) AS "휴학생 수"
 FROM TB_STUDENT
 GROUP BY DEPARTMENT_NO
