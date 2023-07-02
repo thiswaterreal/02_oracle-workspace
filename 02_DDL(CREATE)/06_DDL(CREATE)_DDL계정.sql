@@ -312,7 +312,7 @@ CREATE TABLE MEM_PRI2(
         MEM_ID VARCHAR2(20),
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
-        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
+        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
         PRIMARY KEY(MEM_NO, MEM_ID) -- 묶어서 PRIMARY KEY 제약 조건 부여(복합키)     
