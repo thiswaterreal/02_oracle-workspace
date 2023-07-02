@@ -457,9 +457,9 @@ WHERE ROWNUM <= 3;
       RANK() OVER(정렬기준)               |               DENSE_RANK() OVER(정렬기준)
     
     - RANK() OVER(정렬기준) : 동일한 순위 이후의 등수를 동일한 인원수 만큼 건너뛰고 순위 계산
-                             EX) 공동 1위가 2명 그 다음 순위는 3위             => 공동1등, 공동1등, 3등
+                             EX) 공동 1위가 2명 그 다음 순위는 3위                                   => 공동1등, 공동1등, 3등 (1,1,3)
     - DENSE_RANK() OVER(정렬기준) : 동일한 순위가 있다고 해도 그 다음 등수를 무조건 1씩 증가시킴
-                                   EX) 공동1귀가 2명이더라도 그 다음 순위를 2위 => 공동1등, 공동1등, 2등
+                                   EX) 공동1위가 2명이더라도 그 다음 순위를 2위                       => 공동1등, 공동1등, 2등 (1,1,2)
     >> 두 함수는 무조건 SELECT절에서만 사용 가능!!
 */
 
@@ -471,6 +471,7 @@ FROM EMPLOYEE;
 SELECT EMP_NAME, SALARY, DENSE_RANK() OVER(ORDER BY SALARY DESC) AS "순위"
 FROM EMPLOYEE;
 -- 공동 19위 2명 그 뒤의 순위는 20 => 마지막 순위랑 조회된 행 수가 다름
+
 
 -- 상위 5명만 조회
 SELECT EMP_NAME, SALARY, RANK() OVER(ORDER BY SALARY DESC) AS "순위"

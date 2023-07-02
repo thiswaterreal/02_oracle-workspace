@@ -241,7 +241,7 @@ ORDER BY 1;
 SELECT STUDENT_NAME AS "동일이름", COUNT(*) AS "동명인 수"
 FROM TB_STUDENT
 GROUP BY STUDENT_NAME
-HAVING COUNT(*) > 1;
+HAVING COUNT(*) >= 2;
 
 /*
 15. 학번이 A112113 인 김고운 학생의 년도, 학기 별 평점과 년도 별 누적 평점 , 

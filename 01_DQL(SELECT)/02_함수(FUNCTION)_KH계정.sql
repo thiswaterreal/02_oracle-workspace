@@ -228,7 +228,7 @@ SELECT ROUND(123.456, -2) FROM DUAL;    --(100)
 ---------------------------------------------------------------------------------
 /*
     * CEIL
-    (무조건)올림처리 해주는 함수
+    (무조건) 소수점에서 올림처리 해주는 함수
     
     CEIL(NUMBER)
 */
@@ -349,12 +349,13 @@ FROM DUAL;
 
 -- 숫자타입 => 문자타입
 SELECT TO_CHAR(1234) FROM DUAL; --'1234' 로 바뀌어 있는거임
-SELECT TO_CHAR(1234, '99999') FROM DUAL;    --( 1234) 5칸짜리 공간 확보, 오른쪽 정렬, 빈칸 공백
-SELECT TO_CHAR(1234, '00000') FROM DUAL;    --(01234)
+SELECT TO_CHAR(1234, '99999') FROM DUAL;    --( 1234) 5칸짜리 공간 확보, 오른쪽 정렬, 빈칸 공백     // 9 : 빈자리 공백
+SELECT TO_CHAR(1234, '00000') FROM DUAL;    --(01234)                                          // 0 : 빈자리  0
 SELECT TO_CHAR(1234, 'L99999') FROM DUAL;   --(￦1234) 현재 설정된 나라(LOCAL)의 화폐단위
 SELECT TO_CHAR(1234, '$99999') FROM DUAL;   --($1234)
 
 SELECT TO_CHAR(1234, 'L999,999') FROM DUAL;  --(￦1,234)
+SELECT TO_CHAR(1234, '999,999') FROM DUAL;  --(1,234)
 
 SELECT EMP_NAME, TO_CHAR(SALARY, 'L999,999,999')    --(￦8,000,000) / 9 = 공백 / 0 = 0채움 **
 FROM EMPLOYEE;
