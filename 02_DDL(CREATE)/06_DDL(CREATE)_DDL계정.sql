@@ -626,8 +626,8 @@ SELECT * FROM EMPLOYEE_COPY3;
 */
 
 -- 서브쿼리를 이용해서 복제한 테이블 NN(NOT NULL) 제약조건 빼고 복제안됨
--- EMPLOYEE_COPY 테이블에 PRIMARY KEY 제약조건 추가 (EMP_ID)
 
+-- EMPLOYEE_COPY 테이블에 PRIMARY KEY 제약조건 추가 (EMP_ID)
 ALTER TABLE EMPLOYEE_COPY ADD PRIMARY KEY (EMP_ID);
 
 -- EMPLOYEE 테이블에 DEPT_CODE에 외래키 제약조건 추가 (참조하는 테이블(부모) : DEPARTMENT(DEPT_ID))
