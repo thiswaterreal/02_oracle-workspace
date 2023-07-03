@@ -15,7 +15,7 @@
     1. 테이블 생성
     - 테이블이란? 행(ROW)과 열(COLUMN로 구성되는 가장 기본적인 데이터베이스 객체)
                 모든 데이터들은 테이블을 통해서 저장됨!!
-                (DBMS 용어 중 하나로, 데이터를 일종의 표 형태로 표현한 것!!)
+                (DBMS 용어 중 하나로, 데이터를 일종의 형태로 표현한 것!!)
      [ 표현식 ]
      CREATE TABLE 테이블명(
             컬럼명 자료형(크기)
@@ -194,7 +194,6 @@ INSERT INTO MEM_UNIQUE VALUES(2, 'user01', 'pass02', '이강인', null, null, null)
         컬럼명 자료형, 
         [CONSTRAINTS] 제약조건(컬럼명)
     );
-
 */
 
 DROP TABLE MEM_UNIQUE;
@@ -225,6 +224,8 @@ SELECT * FROM MEM_UNIQUE;
     * CHECK(조건식 제약조건)
     해당 컬럼에 들어올 수 있는 값에 대한 조건을 제시해둘 수 있음
     해당 조건에 만족하는 데이터값만 담길 수 있음
+    CHECK(GENDER IN ('남', '여'))
+    CHECK(ENT_YN IN ('Y', 'N'))
 
 */
 
@@ -236,7 +237,7 @@ CREATE TABLE MEM_CHECK(
         GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50) 
---        CHECK(GENDER IN('남', '여')) -- 테이블 레벨 방식
+--      CHECK(GENDER IN('남', '여')) -- 테이블 레벨 방식
 );
 
 SELECT * FROM MEM_CHECK;
