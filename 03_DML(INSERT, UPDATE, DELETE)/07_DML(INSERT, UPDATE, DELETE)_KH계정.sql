@@ -311,4 +311,68 @@ UPDATE EMPLOYEE
 SET JOB_CODE = 'J9'
 WHERE EMP_NAME = '노옹철';
 -- ORA-02291: integrity constraint (KH.SYS_C007151) violated - parent key not found
--- FOREIGN_KEY 제약조건 위배되어 안됨!! (JOB테이블 부모테이블 가보면 J9 없음)
+-- FOREIGN_KEY 제약조건 위배되어 안됨!! (JOB 테이블(부모테이블) 가보면 J9 없음)
+
+--================================================================================
+COMMIT;
+/*
+    4. DELETE
+        테이블에 기록된 데이터를 삭제하는 구문 (한 행 단위로 삭제됨)
+        
+    [표현식]
+    DELETE FROM 테이블명
+    [WHERE 조건;]     --> WHERE절 조건 제시 안하면 전체 행 다 삭제됨
+*/
+
+-- 차은우 사원의 데이터 지우기
+DELETE FROM EMPLOYEE;
+-- WHERE 조건 안걸어서 전체 다 삭제됨..
+
+ROLLBACK;   -- 마지막 커밋 시점으로 돌아감
+
+DELETE FROM EMPLOYEE
+WHERE EMP_NAME = '차은우';
+
+DELETE FROM EMPLOYEE
+WHERE EMP_NAME = '주지훈';
+
+SELECT * FROM EMPLOYEE;
+
+COMMIT;   -- 현재까지의 수정사항 저장!
+
+ROLLBACK; -- COMMIT 시점이 차은우, 주지훈 삭제한 뒤기 때문에 ROLLBACK 해도 돌아갈 수 없음
+
+-- DEPT_ID 가 D1 인 부서를 삭제
+DELETE FROM DEPARTMENT
+WHERE DEPT_ID = 'D1';
+-- ORA-02292: integrity constraint (KH.SYS_C007150) violated - child record found
+-- 외래키 제약 조건
+-- D1의 값을 가져다쓰는(참조하는) 자식데이터가 있기 때문에 삭제가 안됨!!
+
+SELECT DISTINCT DEPT_CODE
+FROM EMPLOYEE;
+
+-- DEPT_ID 가 D3 인 부서를 삭제
+DELETE FROM DEPARTMENT
+WHERE DEPT_ID = 'D3';
+
+SELECT * FROM DEPARTMENT;
+
+ROLLBACK;
+
+-- * TRUNCATE : 테이블의 전체 행을 삭제할 때 사용되는 구문
+--              DELETE 보다 수행속도가 빠름 (데이터 많을 경우 촤라락 삭제됨)
+--              그러나, 별도의 조건 제시 불가!! / ROLLBACK 불가!!!!!!!
+-- [표현식] TRUNCATE TABLE 테이블명
+
+SELECT * FROM EMP_SALARY;
+COMMIT;
+
+DELETE FROM EMP_SALARY;
+ROLLBACK;
+
+TRUNCATE TABLE EMP_SALARY;
+ROLLBACK;   -- 돌아오지 않음.. 잘가..
+
+
+
