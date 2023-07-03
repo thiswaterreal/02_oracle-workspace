@@ -608,7 +608,7 @@ SELECT * FROM EMPLOYEE_COPY3;
 
 ---------------------------------------------------------------------------------
 /*
-    * 테이블 다 생성된 후에 뒤늦게 제약조건 추가
+    * 테이블 다 생성된 후에 뒤늦게 제약조건 '추가'
     
     ALTER TABLE 테이블명 변경할내용; ** 중요 **
     
@@ -619,7 +619,7 @@ SELECT * FROM EMPLOYEE_COPY3;
     - * NOT NULL    : ALTER TABLE 테이블명 MODIFY 컬럼명 NOT NULL;  ** 약간 특이함 **
 */
 
--- 서브쿼리를 이요해서 복제한 테이블 NN(NOT NULL) 제약조건 빼고 복제안됨
+-- 서브쿼리를 이용해서 복제한 테이블 NN(NOT NULL) 제약조건 빼고 복제안됨
 -- EMPLOYEE_COPY 테이블에 PRIMARY KEY 제약조건 추가 (EMP_ID)
 
 ALTER TABLE EMPLOYEE_COPY ADD PRIMARY KEY (EMP_ID);
