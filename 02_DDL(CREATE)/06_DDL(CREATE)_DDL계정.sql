@@ -111,15 +111,15 @@ INSERT INTO MEMBER VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     삽입 / 수정시 NULL값을 허용하지 않도록 제한
     
     제약 조건을 부여하는 방식은 크게 2가지가 있음(컬럼레벨방식 / 테이블레벨방식)
-    * NOT NULL 제약 조건은 오로지 컬럼레벨방식밖에 안됨 **
+    * NOT NULL 제약 조건은 오로지 컬럼레벨방식만!! 가능 **
 */
 
 -- 컬럼레벨방식 : 컬럼명 자료형 제약조건
 CREATE TABLE MEM_NOTNULL(
-        MEM_NO NUMBER NOT NULL, 
-        MEM_ID VARCHAR2(20) NOT NULL,
-        MEM_PWD VARCHAR2(20) NOT NULL,
-        MEM_NAME VARCHAR(20) NOT NULL,
+        MEM_NO NUMBER NOT NULL,         --> 컬럼레벨방식
+        MEM_ID VARCHAR2(20) NOT NULL,   --> 컬럼레벨방식
+        MEM_PWD VARCHAR2(20) NOT NULL,  --> 컬럼레벨방식
+        MEM_NAME VARCHAR(20) NOT NULL,  --> 컬럼레벨방식
         GENDER CHAR(3),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50)
@@ -144,9 +144,9 @@ INSERT INTO MEM_NOTNULL VALUES(2, 'user01', 'pass01', '이승우', null, null, null
 
 */
 
-CREATE TABLE MEM_UNIQUE( -- 컬럼레벨방식
+CREATE TABLE MEM_UNIQUE( 
         MEM_NO NUMBER NOT NULL, 
-        MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
+        MEM_ID VARCHAR2(20) NOT NULL UNIQUE, --> 컬럼레벨방식
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
         GENDER CHAR(3),
@@ -165,7 +165,7 @@ CREATE TABLE MEM_UNIQUE(
         GENDER CHAR(3),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50),
-        UNIQUE(MEM_ID) --> 테이블 레벨방식
+        UNIQUE(MEM_ID)      --> 테이블 레벨방식
 );
 
 SELECT * FROM MEM_UNIQUE;
@@ -179,12 +179,12 @@ INSERT INTO MEM_UNIQUE VALUES(2, 'user01', 'pass02', '이강인', null, null, null)
 --> 제약조건 부여시 제약조건명을 지정해주지 않으면 시스템에서 임의의 제약 조건명을 부여해버림
 
 /*
-    * 제약조건 부여시 제약조건명까지 지어주는 방법
+    * 제약조건 부여시 '제약조건명' 까지 지어주는 방법
     
     > 컬럼레벨방식
     CREATE TABLE 테이블명(
-    컬럼명 자료형 [CONSTRAINTS] 제약조건,
-    컬럼명 자료형
+        컬럼명 자료형 [CONSTRAINTS] 제약조건,
+        컬럼명 자료형
     );
     
         
@@ -197,7 +197,7 @@ INSERT INTO MEM_UNIQUE VALUES(2, 'user01', 'pass02', '이강인', null, null, null)
 */
 
 DROP TABLE MEM_UNIQUE;
-
+-- 제약 조건 부여시, '제약조건명' 까지 지어서 만들어보자
 CREATE TABLE MEM_UNIQUE( 
         MEM_NO NUMBER CONSTRAINT MEMNO_NN NOT NULL, 
         MEM_ID VARCHAR2(20) CONSTRAINT MEMID_NN NOT NULL,
