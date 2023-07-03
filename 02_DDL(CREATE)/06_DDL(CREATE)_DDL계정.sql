@@ -141,7 +141,6 @@ INSERT INTO MEM_NOTNULL VALUES(2, 'user01', 'pass01', '이승우', null, null, null
     해당 컬럼에 중복된 값이 들어가서는 안 될 경우
     컬럼값에 중복값을 제한하는 제약 조건
     삽입 / 수정시 기존에 있는 데이터값 중 중복값이 있을 경우 오류 발생!!
-
 */
 
 CREATE TABLE MEM_UNIQUE( 
@@ -207,6 +206,7 @@ CREATE TABLE MEM_UNIQUE(
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50),
         CONSTRAINT MEMID_UQ UNIQUE(MEM_ID) --> 테이블 레벨방식
+        
 );
 
 INSERT INTO MEM_UNIQUE VALUES(1, 'user01', 'pass01', '손흥민', null, null, null);
@@ -351,6 +351,7 @@ INSERT INTO TB_LIKE VALUES(1, '감자', SYSDATE);
 INSERT INTO TB_LIKE VALUES(1, '고구마', SYSDATE);
 INSERT INTO TB_LIKE VALUES(1, '감자', SYSDATE); -- 에러 발생!! 한번만 찜해야 됨
 INSERT INTO TB_LIKE VALUES(2, '감자', SYSDATE);
+--                        (이  두개  ) 를 세트로 봄
 
 --------------------------------------------------------------------------------
 -- 회원등급에 대한 데이터를 따로 보관하는 테이블
@@ -370,7 +371,7 @@ CREATE TABLE MEM(
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
-        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
+        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
         GRADE_ID NUMBER -- 회원 등급번호 같이 보관할 컬럼   
@@ -398,7 +399,7 @@ VALUES (3, 'user03', 'pass03', '이승우', '남', null, null, 40);
     > 컬럼레벨방식
     컬럼명 자료형 [CONSTRAINT 제약조건명] REFERENCES 참조할 테이블명[(참조할 컬럼명)]
     
-    >테이블레벨방식
+    > 테이블레벨방식
     [CONSTRAINT 제약조건명] FOREIGN KEY(컬럼명) REFERENCES 참조할 테이블명 [(참조할 컬럼명)]
     
     -- > 참조할 컬럼명 생략시 참조할 테이블 PRIMARY KEY로 지정된 컬럼으로 자동 매칭
@@ -412,12 +413,16 @@ CREATE TABLE MEM(
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
-        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
+        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
         GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) -- 컬럼레벨방식
-        -- , FOREIGN KEY(GRADE_ID) REFERENCES) MEM_GRADE(GRADE_CODE)
+        -- , FOREIGN KEY(GRADE_ID) REFERENCES) MEM_GRADE(GRADE_CODE) -- 테이블레벨방식
 );
+-- 연결고리
+-- MEM_GRADE 테이블의    GRADE_CODE 컬럼
+-- MEM       테이블의    GRADE_ID   컬럼
+-- 이제 GRADE_ID 는 GRADE_CODE 를 참조하고 있기 때문에 (10, 20, 30) 이것만 쓸 수 있음
 
 INSERT INTO MEM
 VALUES (1, 'user01', 'pass01', '손흥민', '남', null, null, null);
@@ -435,6 +440,7 @@ VALUES (3, 'user03', 'pass03', '이승우', '남', null, null, 20);
 INSERT INTO MEM
 VALUES(4, 'user04', 'pass04', '안정환', null, null, null, 10);
 
+SELECT * FROM MEM_GRADE;
 -- MEM_GRADE(부모테이블) MEM(자식테이블)
 -- 이때 부모테이블 (MEM_GRADE) 에서 데이터 값을 삭제할 경우 어떤 문제가 발생할까?
 -- 데이터 삭제 : DELETE FROM 테이블명 WHERE 조건;
@@ -474,7 +480,7 @@ CREATE TABLE MEM(
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
-        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
+        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
         GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE SET NULL
@@ -512,7 +518,7 @@ CREATE TABLE MEM(
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
         MEM_PWD VARCHAR2(20) NOT NULL,
         MEM_NAME VARCHAR(20) NOT NULL,
-        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')), -- 컬럼레벨방식
+        GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
         GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE CASCADE
