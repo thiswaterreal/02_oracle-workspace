@@ -372,7 +372,7 @@ DELETE FROM EMP_SALARY;
 ROLLBACK;
 
 TRUNCATE TABLE EMP_SALARY;
-ROLLBACK;   -- 돌아오지 않음.. 잘가..
+ROLLBACK;   -- 다시 돌아오지 않음.. 잘가..
 
 
 

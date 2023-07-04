@@ -102,7 +102,7 @@ INSERT INTO MEMBER VALUES(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
     - 원하는 데이터값 (유효한 형식의 값)만 유지하기 위해서 특정 컬럼에 설정하는 제약조건
     - 데이터 무결성 보장을 목적으로 한다!
     
-    * 종류 : NOT NULL, UNIQUE, CHECK, PRIMARY KEYM FOREIGN KEY
+    * 종류 : NOT NULL, UNIQUE, CHECK, PRIMARY KEY, FOREIGN KEY
 */
 
 /*
