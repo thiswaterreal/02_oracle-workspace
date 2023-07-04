@@ -9,7 +9,7 @@
                             트랜젝션이 존재하지 않으면 트랜젝션 만들어서 묶음
       COMMIT 하기 전!까지 변경사항들을 하나의 트랜젝션에 담게 됨
       COMMIT 을 해야만 실제 DB에 반영이 된다고 생각하면 됨
-      - 트랜젝션의 대상이 되는 SQL : INSERT, UPDATE, DELETE (DML)
+      - 트랜젝션의 대상이 되는 SQL : INSERT, UPDATE, DELETE (DML에서만 반영!!)
       
       COMMIT (트랜젝션 종료 처리 후 확정)
       ROLLBACK (트랜젝션 취소)
@@ -46,10 +46,10 @@ INSERT INTO EMP_01
 VALUES(800, '황민현', '총무부');
 
 COMMIT;
--- 실제 DB에 반영됨!!                // 데이터들을 실제 DB에 다 보내고, 트랜젝션 비우고 삭제까지 됨
+-- 실제 DB에 반영됨!!                // 데이터들을 실제 DB에 다 반영시키고, 트랜젝션 비우고 삭제까지 됨
 
 ROLLBACK;
--- 이미 COMMIT 해서 못들어감          // 위에 COMMIT; 선언한 바로 뒷 상태로 돌아감 (마지막COMMIT시점으로 돌아감)
+-- 이미 COMMIT 해서 못들어감          // 위에 COMMIT; 선언한 바로 뒷 상태로 돌아감 (마지막COMMIT시점으로 돌아감)(트랜젝션 내용들 취소)
 
 -- 217, 216, 214 사원 지움
 DELETE FROM EMP_01
@@ -90,3 +90,8 @@ CREATE TABLE TEST(
 );
 
 ROLLBACK;
+-- DDL문 (CREATE, ALTER, DROP)을 수행하는 순간 기존에 트랜젝션에 있던 변경사항들을
+-- 무조건 COMMIT(실제 DB에 반영)
+-- 따라서, ROLLBACK 했음에도 900,901,218이 살아나지 않는다..
+-- 즉, DDL문 수행 전 변경사항이 있었다면 정확히 픽스(COMMIT, ROLLBACK) 하고 하자!!
+
