@@ -11,7 +11,7 @@
     
     * 변경할내용
     1) 컬럼 추가/수정/삭제
-    2) 제약조건 추가/삭제     --> 수정은 불가 (수정하고자 한다면 삭제하간 후 새로이 추가)
+    2) 제약조건 추가/삭제     --> 수정은 불가 (수정하고자 한다면 삭제한 후 새로이 추가)
     3) 컬럼명/제약조건명/테이블명 수정
     
 */
@@ -28,7 +28,7 @@ SELECT * FROM DEPT_COPY;
 ALTER TABLE DEPT_COPY ADD LNAME VARCHAR2(20) DEFAULT '한국';
 
 -- 1_2) 컬럼 수정(MODIFY)
---> 자료형 수정          : MODIFY 컬럼명 바꾸고자하는자료형
+--> 자료형 수정           : MODIFY 컬럼명 바꾸고자하는자료형
 --> DEFAULT값 수정       : MODIFY 컬럼명 DEFAULT 바꾸고자하는기본값
 
 ALTER TABLE DEPT_COPY MODIFY DEPT_ID CHAR(3);
@@ -105,7 +105,7 @@ ALTER TABLE DEPT_COPY
     MODIFY LNAME CONSTRAINT DCOPY_NN NOT NULL;
 
 -- 2_2) 제약조건 삭제 : DROP CONTRAINT 제약조건명
--- NOT NULL 삭제말고 MODIFY 컬럼명 NULL 로 간다
+-- NOT NULL 삭제말고 NULL로!! (MODIFY 컬럼명 NULL)
 
 ALTER TABLE DEPT_COPY DROP CONSTRAINT DCOPY_PK;
 
