@@ -7,12 +7,14 @@
 
 
 
-
-?
+-- (부모테이블) <- (자식테이블) 참조하고 있으면 부모테이블 삭제 안됨
+-- (자식테이블) 먼저 삭제하고
+-- (부모테이블) 삭제!! 후 다시 부모테이블 생성!!
 
 --1. 출판사들에 대한 데이터를 담기 위한 출판사 테이블(TB_PUBLISHER)
 
---컬럼: PUB_NO(출판사번호) --기본키(PUBLISHER_PK)
+-- 컬럼: 
+-- PUB_NO(출판사번호) --기본키(PUBLISHER_PK)
 -- PUB_NAME(출판사명) --NOT NULL(PUBLICHSER_NN)
 -- PHONE(출판사전화번호) --제약조건 없음
 
@@ -41,7 +43,8 @@ INSERT INTO TB_PUBLISHER VALUES(3, '유리출판사', '010-5555-6666');
 
 --2. 도서들에 대한 데이터를 담기 위한 도서 테이블(TB_BOOK)
 
---컬럼: BK_NO(도서번호) --기본키(BOOK_PK)
+-- 컬럼:
+-- BK_NO(도서번호) --기본키(BOOK_PK)
 -- BK_TITLE(도서명) --NOT NULL(BOOK_NN_TITLE)
 -- BK_AUTHOR(저자명) --NOT NULL(BOOK_NN_AUTHOR)
 -- BK_PRICE(가격)
@@ -85,8 +88,9 @@ DELETE FROM TB_BOOK; --데이터 전체 삭제
 
 --3. 회원에 대한 데이터를 담기 위한 회원 테이블(TB_MEMBER)
 
---컬럼명: MEMBER_NO(회원번호) --기본키(MEMBER_PK)
--- MEMBER_ID(아이디) --중복금지(MEMBER_UQ)
+--컬럼명: 
+--MEMBER_NO(회원번호) --기본키(MEMBER_PK)
+--MEMBER_ID(아이디) --중복금지(MEMBER_UQ)
 --MEMBER_PWD(비밀번호) NOT NULL(MEMBER_NN_PWD)
 --MEMBER_NAME(회원명) NOT NULL(MEMBER_NN_NAME)
 --GENDER(성별) 'M' 또는 'F'로 입력되도록 제한(MEMBER_CK_GEN)
@@ -132,7 +136,6 @@ INSERT INTO TB_MEMBER VALUES(5, 'user05', 'pass05', '박골골', 'F', '경기도 가평�
 --4. 도서를 대여한 회원에 대한 데이터를 담기 위한 대여목록 테이블(TB_RENT)
 
 --컬럼:
-
 --RENT_NO(대여번호) --기본키(RENT_PK)
 --RENT_MEM_NO(대여회원번호) --외래키(RENT_FK_MEM) TB_MEMBER와 참조하도록
 --이때 부모데이터 삭제 시 NULL값이 되도록 옵션 설정
