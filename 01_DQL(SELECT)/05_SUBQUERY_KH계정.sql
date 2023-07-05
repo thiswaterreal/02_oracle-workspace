@@ -45,7 +45,7 @@ WHERE SALARY >= (SELECT AVG(SALARY)
     * 서브쿼리의 구분
       서브쿼리 수행한 결과값이 몇 행 몇 열이냐에 따라서 분류됨
       
-      - 단일행 서브쿼리 : 서브쿼리의 조회 결과값의 개수가 오로지 1개 일때 (한 행 한 열) /
+      - 단일행 서브쿼리 : 서브쿼리의 조회 결과값의 개수가 오로지 1개 일때 (한 행 한 열) / = > <
       - 다중행 서브쿼리 : 서브쿼리의 조회 결과값이 여러행 일때 (여러행 한열) => 동명이인 노옹철 / IN, ANY, ALL
       - 다중열 서브쿼리 : 서브쿼리의 조회 결과값이 한 행이지만 컬럼이 여러개일 때 (한 행 여러 열) / = > <
       - 다중행 다중열 서브쿼리 : 서브쿼리 조회 결과값이 여러행 여러컬럼일 때 (여러행 여러열) / () IN ()
@@ -108,7 +108,7 @@ GROUP BY DEPT_CODE; --17700000
 -- 4_2) 부서별 급여합이 177700000원인 부서 조회 (부서코드, 급여합)
 SELECT DEPT_CODE, SUM(SALARY)       -- GROUP으로 묶은것들의 합계니까, 그룹함수여도 단일행함수 같이 쓸 수 있음
 FROM EMPLOYEE
-GROUP BY DEPT_CODE
+GROUP BY DEPT_CODE;
 HAVING SUM(SALARY) = 17700000;
 
 -- 위의 두 단계를 하나의 쿼리문으로..
@@ -195,7 +195,7 @@ WHERE JOB_CODE IN (SELECT JOB_CODE
 -- 2_1) 먼저 과장 직급인 사원들의 급여 조회
 SELECT SALARY
 FROM EMPLOYEE E, JOB J
-WHERE E.JOB_CODE = J.JOB_CODE
+WHERE (E.JOB_CODE = J.JOB_CODE)
 AND J.JOB_NAME = '과장';  -- 2200000 2500000 3760000 (과장들의 급여)
 
 -- 2_2) 직급이 대리이면서 급여값이 위의 목록들 값 중에 하나라도 큰 사원
@@ -213,7 +213,7 @@ WHERE JOB_NAME = '대리'
 AND SALARY > ANY (SELECT SALARY
                   FROM EMPLOYEE E, JOB J
                   WHERE E.JOB_CODE = J.JOB_CODE
-                  AND J.JOB_NAME = '과장');
+                  AND J.JOB_NAME = '과장');  -- 2200000 2500000 3760000 (과장들의 급여)
 
 -- 사실 단일행 서브쿼리로도 가능!
 -- 나의 쿼리
@@ -372,11 +372,11 @@ ORDER BY SALARY DESC;   --3
 -- FROM -> SELECT ROWNUM (이때 순번이 부여됨. 정렬도 하기전에 이미 순번 부여)
 --> 뭔가 좀 이상함.. => 실행순서 때문!
 
-SELECT ROWNUM, EMP_NAME, SALARY --2
+SELECT ROWNUM, EMP_NAME, SALARY --3
 FROM EMPLOYEE   --1
-WHERE ROWNUM <= 5   --3
+WHERE ROWNUM <= 5   --2
 ORDER BY SALARY DESC;   --4
---> 정상적인 결과가 조회되지 않음!! (SALARY 로 정렬이 되기도 전에 5명이 추려지고나서 정렬)
+--> 정상적인 결과가 조회되지 않음!! (SALARY 로 정렬이 되기도 전에 5명이 순위먹이고 정렬)
 
 -- ORDER BY 절이 다 수행된 결과를 가지고, ROWNUM 부여 후, 5명 추려야함
 SELECT EMP_NAME, SALARY, DEPT_CODE  --2
@@ -476,7 +476,7 @@ FROM EMPLOYEE;
 -- 상위 5명만 조회
 SELECT EMP_NAME, SALARY, RANK() OVER(ORDER BY SALARY DESC) AS "순위"
 FROM EMPLOYEE;
---WHERE 순위 <= 5; --2 .불가능 별칭사용불가능
+--WHERE 순위 <= 5;                              --2 .불가능 별칭사용불가능
 --WHERE RANK() OVER(ORDER BY SALARY DESC) <= 5; -- RANK는 SELECT절에서만 사용 가능
 
 -- 결국, 인라인뷰를 쓸 수 밖에 없음!
