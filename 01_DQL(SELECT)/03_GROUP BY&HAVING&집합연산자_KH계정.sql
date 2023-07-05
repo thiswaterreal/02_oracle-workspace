@@ -31,9 +31,13 @@ FROM EMPLOYEE
 GROUP BY JOB_CODE;
 
 -- 각 직급별 총 사원수, 보너스를 받는 사원수, 급여 합, 평균급여, 최저급여, 최대급여 (별칭지어서) + 직급명 오름차순 정렬
-SELECT JOB_CODE AS "직급", COUNT(*) AS "총 사원수", COUNT(BONUS) AS "보너스를 받는 사원수",
-       SUM(SALARY) AS "급여 합", ROUND(AVG(SALARY)) AS "평균급여",
-       MIN(SALARY) AS "최저급여", MAX(SALARY) AS "최대급여"
+SELECT JOB_CODE AS "직급", 
+       COUNT(*) AS "총 사원수", 
+       COUNT(BONUS) AS "보너스를 받는 사원수",
+       SUM(SALARY) AS "급여 합", 
+       ROUND(AVG(SALARY)) AS "평균급여",
+       MIN(SALARY) AS "최저급여", 
+       MAX(SALARY) AS "최대급여"
 --SELECT JOB_CODE, COUNT(*), COUNT(BONUS), SUM(SALARY), ROUND(AVG(SALARY)), MIN(SALARY), MAX(SALARY)
 FROM EMPLOYEE
 GROUP BY JOB_CODE
@@ -108,7 +112,7 @@ HAVING COUNT(BONUS) = 0;
     
     여러개의 쿼리문을 가지고 하나의 쿼리문으로 만드는 연산자
     
-    - UNION         : OR | 합집합 (두 쿼리문 수행한 결과값을 더한 후 중복되는 값은 한번만 더해지도록)
+    - UNION         : OR  | 합집합 (두 쿼리문 수행한 결과값을 더한 후 중복되는 값은 한번만 더해지도록)
     - INTERSECT     : AND | 교집합 (두 쿼리문 수행한 결과값에 중복된 결과값)
     - UNION ALL     : 합집합 + 교집합 (중복된 부분이 두 번 표현될 수 있음)
     - MINUS         : 선행 결과값에서 후행 결과값을 뺀 나머지 (차집합)

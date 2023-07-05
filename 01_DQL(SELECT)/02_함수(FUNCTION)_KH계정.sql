@@ -220,6 +220,7 @@ SELECT MOD(10.9, 3) FROM DUAL;
 */
 
 SELECT ROUND(123.456) FROM DUAL;        --(123) 위치 생략시 0
+SELECT ROUND(123.456, 0) FROM DUAL;     --(132)
 SELECT ROUND(123.456, 1) FROM DUAL;     --(132.5)
 SELECT ROUND(123.456, 5) FROM DUAL;     --(123.456) 소수점보다 큰 값 넣으면 걍 원본 그대로 출력
 SELECT ROUND(123.456, -1) FROM DUAL;    --(120)
@@ -562,7 +563,7 @@ FROM EMPLOYEE   -- 1
 WHERE SUBSTR(EMP_NO, 8, 1) IN ('1', '3');   -- 2
 
 -- 부서코드가 D5인 사원들의 총 연봉 합
-SELECT SUM(SALARY * 12)   -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수 쓰면 오류남 ********
+SELECT SUM(SALARY * 12) AS "합계"   -- ,EMP_NAME : 그룹함수이기 때문에 단일행함수와 함께 쓰면 오류남 ********
 FROM EMPLOYEE
 WHERE DEPT_CODE = 'D5';
 
@@ -589,7 +590,7 @@ FROM EMPLOYEE;
 ---------------------------------------------------------------------------------
 -- 5. COUNT(*|컬럼|DISTINCT 컬럼) : 조회된 행 개수를 세서 반환
 
---    COUNT(*)            : 조회된 결과의 모든 행 개수를 세서 반환
+--    COUNT(*)             : 조회된 결과의 모든 행 개수를 세서 반환
 --    COUNT(컬럼)          : 제시한 해당 컬럼값이 NULL이 아닌것만 행 개수 세서 반환 *********(NULL 값은 세지 X!!!)
 --    COUNT(DISTINCT 컬럼) : 해당 컬럼값 중복을 제거한 후 행 개수 세서 반환
 
@@ -598,7 +599,7 @@ SELECT COUNT(*)
 FROM EMPLOYEE;
 
 -- 여자 사원 수 
-SELECT COUNT(*) -- 3
+SELECT COUNT(*) -- 9
 FROM EMPLOYEE   -- 1
 WHERE SUBSTR(EMP_NO, 8, 1) IN('2', '4');    -- 2
 

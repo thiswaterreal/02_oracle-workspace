@@ -62,7 +62,7 @@ FROM JOB;
 --    사번, 사원명, 부서코드, 부서명을 같이 조회
 SELECT EMP_ID, EMP_NAME, DEPT_CODE, DEPT_TITLE
 FROM EMPLOYEE, DEPARTMENT
-WHERE DEPT_CODE = DEPT_ID;
+WHERE (DEPT_CODE = DEPT_ID);
 -- 일치하는 값이 없는 행은 조회에서 제외된거 확인 가능 -- 21개
 -- DEPT_CODE 가 NULL인 사원 조회 X, DEPT_ID가 D3, D4, D7 조회 X  --(23명인데 21명 조회됨)
 
@@ -70,18 +70,18 @@ WHERE DEPT_CODE = DEPT_ID;
 --    사번, 사원명, 직급코드, 직급명
 SELECT EMP_ID, EMP_NAME, JOB_CODE, JOB_NAME
 FROM EMPLOYEE, JOB
-WHERE JOB_CODE = JOB_CODE;
+WHERE (JOB_CODE = JOB_CODE);
 -- ambiguously : 애매하다, 모호하다
 
 -- 해결방법 1) 테이블명을 이용하는 방법
 SELECT EMP_ID, EMP_NAME, EMPLOYEE.JOB_CODE, JOB_NAME
 FROM EMPLOYEE, JOB
-WHERE EMPLOYEE.JOB_CODE = JOB.JOB_CODE;
+WHERE (EMPLOYEE.JOB_CODE = JOB.JOB_CODE);
 
 -- 해결방법 2) 테이블에 별칭을 부여해서 이용하는 방법    **주로 요놈 사용**
 SELECT EMP_ID, EMP_NAME, E.JOB_CODE, JOB_NAME
 FROM EMPLOYEE E, JOB J
-WHERE E.JOB_CODE = J.JOB_CODE;
+WHERE (E.JOB_CODE = J.JOB_CODE);
 
 
 -- >> ANSI 구문
@@ -152,7 +152,7 @@ JOIN DEPARTMENT ON (DEPT_CODE =  DEPT_ID)
 WHERE DEPT_TITLE = '인사관리부';
 
 ---------------------------------------------
-SELECT * FROM DEPARTMENT;   --(LOCATION_ID)             / 연결고리
+SELECT * FROM DEPARTMENT;   --(LOCATION_ID)           
 SELECT * FROM LOCATION;     --(LOCAL_CODE)
 
 -- 2. DEPARTMENT 와 LOCATION 을 참고해서 전체 부서의 부서코드, 부서명, 지역코드, 지역명 조회 (컬럼명 달라)
@@ -167,7 +167,7 @@ FROM DEPARTMENT
 JOIN LOCATION ON (LOCATION_ID = LOCAL_CODE);
 
 ---------------------------------------------
-SELECT * FROM EMPLOYEE;     --(DEPT_CODE)              / 연결고리
+SELECT * FROM EMPLOYEE;     --(DEPT_CODE)          
 SELECT * FROM DEPARTMENT;   --(DEPT_ID)
 
 -- 3. 보너스를 받는 사원들의 사번, 사원명, 보너스, 부서명 조회
@@ -292,7 +292,7 @@ WHERE E.MANAGER_ID = M.EMP_ID;
 SELECT E.EMP_ID AS "사원사번", E.EMP_NAME AS "사원명", E.DEPT_CODE AS "사원부서코드",
        M.EMP_ID AS "사수사번", M.EMP_NAME AS "사수명", M.DEPT_CODE AS "사수부서코드"
 FROM EMPLOYEE E, EMPLOYEE M
-WHERE E.MANAGER_ID = M.EMP_ID;
+WHERE (E.MANAGER_ID = M.EMP_ID);
 
 -- >> ANSI 구문
 /*
