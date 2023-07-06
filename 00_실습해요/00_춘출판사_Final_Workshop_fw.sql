@@ -97,6 +97,7 @@ SET REGIST_DATE = (SELECT MIN(ISSUE_DATE)
 SELECT * FROM TB_WRITER;
 ROLLBACK;                    
 
+COMMIT;
 
 /*
 10. 현재 도서저자 정보 테이블은 저서와 번역서를 구분 없이 관리하고 있다. 앞으로는 번역서는 따로 관리하려
@@ -126,29 +127,63 @@ COMMENT ON COLUMN TB_BOOK_TRANSLATOR.TRANS_LANG IS '번역 언어';
 SELECT * FROM TB_BOOK_AUTHOR;
 SELECT * FROM TB_BOOK_TRANSLATOR;
 
-SELECT WRITER_NO, BOOK_NO FROM TB_BOOK_AUTHOR WHERE COMPOSE_TYPE IN ('옮김', '역주', '편역', '공역');
+SELECT BOOK_NO, WRITER_NO FROM TB_BOOK_AUTHOR WHERE COMPOSE_TYPE IN ('옮김', '역주', '편역', '공역');
 
-INSERT INTO TB_BOOK_TRANSLATOR (WRITER_NO, BOOK_NO)
-(SELECT WRITER_NO, BOOK_NO 
-        FROM TB_BOOK_AUTHOR 
-        WHERE COMPOSE_TYPE IN ('옮김', '역주', '편역', '공역'));
+INSERT INTO TB_BOOK_TRANSLATOR (BOOK_NO, WRITER_NO)
+                                (SELECT BOOK_NO, WRITER_NO 
+                                FROM TB_BOOK_AUTHOR 
+                                WHERE COMPOSE_TYPE IN ('옮김', '역주', '편역', '공역'));
 
-DELETE
+
+DELETE FROM TB_BOOK_AUTHOR
+WHERE (BOOK_NO, WRITER_NO, COMPOSE_TYPE) IN (SELECT BOOK_NO, WRITER_NO, COMPOSE_TYPE
+                                            FROM TB_BOOK_AUTHOR 
+                                            WHERE COMPOSE_TYPE IN ('옮김', '역주', '편역', '공역'));
+
+ROLLBACK;
 
 /*
 12. 2007년도에 출판된 번역서 이름과 번역자(역자)를 표시하는 SQL 구문을 작성하시오.
 */
+SELECT * FROM TB_BOOK;              -- BOOK_NO
+SELECT * FROM TB_BOOK_TRANSLATOR;   -- BOOK_NO     WRITER_NO
+SELECT * FROM TB_WRITER;            --             WRITER_NO
+
+SELECT BOOK_NM, WRITER_NM, ISSUE_DATE
+FROM TB_BOOK
+JOIN TB_BOOK_TRANSLATOR USING (BOOK_NO)
+JOIN TB_WRITER USING (WRITER_NO)
+WHERE EXTRACT(YEAR FROM ISSUE_DATE) = '2007'
+ORDER BY 1;
 
 /*
 13. 12번 결과를 활용하여 대상 번역서들의 출판일을 변경할 수 없도록 하는 뷰를 생성하는 SQL
 구문을 작성하시오. (뷰 이름은 “VW_BOOK_TRANSLATOR”로 하고 도서명, 번역자, 출판일이
 표시되도록 할 것)
 */
+CREATE OR REPLACE VIEW VW_BOOK_TRANSLATOR
+AS SELECT BOOK_NM, WRITER_NM, ISSUE_DATE
+    FROM TB_BOOK
+    JOIN TB_BOOK_TRANSLATOR USING (BOOK_NO)
+    JOIN TB_WRITER USING (WRITER_NO)
+    WHERE EXTRACT(YEAR FROM ISSUE_DATE) = '2007'
+    ORDER BY 1
+WITH READ ONLY;
+-- ORA-01031: insufficient privileges
+-- privileges : 권한 => 권한이 없다는 것임
+
+-- 관리자 계정에 접속해서 권한 부여
+GRANT CREATE VIEW TO finalfinal;   -- 관리자계정(빨강이)에서!!
+
+SELECT * FROM VW_BOOK_TRANSLATOR;
 
 /*
 14. 새로운 출판사(춘 출판사)와 거래 계약을 맺게 되었다. 제시된 다음 정보를 입력하는 SQL
 구문을 작성하시오.(COMMIT 처리할 것)
 */
+
+
+
 
 /*
 15. 동명이인(同名異人) 작가의 이름을 찾으려고 한다. 이름과 동명이인 숫자를 표시하는 SQL 구문을
