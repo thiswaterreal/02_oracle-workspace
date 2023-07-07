@@ -277,6 +277,7 @@ FROM TB_BOOK
 JOIN TB_BOOK_AUTHOR A USING (BOOK_NO)
 JOIN TB_WRITER W ON (A.WRITER_NO = W.WRITER_NO)
 WHERE BOOK_NM = '아타트롤';
+-- 자체조인
 
 /*
 --21. 현재 기준으로 최초 발행일로부터 만 30년이 경과되고, 재고 수량이 90권 이상인 도서에 대해 도서명, 재고
