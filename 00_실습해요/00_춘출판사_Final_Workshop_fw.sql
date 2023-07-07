@@ -238,38 +238,16 @@ ORDER BY 1;
 작성하시오. (재고 수량이 5권 미만인 도서는 ‘추가주문필요’로, 나머지는 ‘소량보유’로 표시하고, 
 재고수량이 많은 순, 도서명 순으로 표시되도록 한다. )
 */
-SELECT * FROM TB_BOOK;      --PUBLISHER_NM
+SELECT * FROM TB_BOOK;
 
-SELECT BOOK_NM, PRICE, STOCK_QTY
+SELECT BOOK_NM, PRICE,
+       CASE WHEN STOCK_QTY < 5 THEN '추가주문필요'
+            ELSE '소량보유'
+       END AS "재고상태"
 FROM TB_BOOK
 WHERE PUBLISHER_NM = '황금가지'
-AND STOCK_QTY < 10;
-
-SELECT BOOK_NM, PRICE, STOCK_STATUS
-FROM (SELECT BOOK_NM, PRICE, STOCK_QTY, STOCK_STATUS
-FROM TB_BOOK
-WHERE PUBLISHER_NM = '황금가지'
-AND STOCK_QTY < 10);
-
-INSERT INTO
-
-
-
-
-UPDATE TB_BOOK
-SET STOCK_STATUS = '추가주문필요'
-WHERE STOCK_QTY IN (SELECT STOCK_QTY
-                    FROM TB_BOOK
-                    WHERE PUBLISHER_NM = '황금가지'
-                    AND STOCK_QTY < 10);
-                    
--- 컬럼 추가해서 재고상태 표시하도록 만들어야 하나..??
-ALTER TABLE TB_BOOK ADD STOCK_STATUS VARCHAR2(20);  --재고상태 컬럼
-
-
-
-
-
+AND STOCK_QTY < 10
+ORDER BY STOCK_QTY DESC, BOOK_NM;
 
 /*
 --20. '아타트롤' 도서 작가와 역자를 표시하는 SQL 구문을 작성하시오. (결과 헤더는
@@ -292,7 +270,15 @@ WHERE BOOK_NM = '아타트롤';
 
 /*
 --21. 현재 기준으로 최초 발행일로부터 만 30년이 경과되고, 재고 수량이 90권 이상인 도서에 대해 도서명, 재고
-수량, 원래 가격, 20% 인하 가격을 표시하는 SQL 구문을 작성하시오. (결과 헤더는 “도서명”, “재고
-수량”, “가격(Org)”, “가격(New)”로 표시할 것. 재고 수량이 많은 순, 할인 가격이 높은 순, 도서명
-순으로 표시되도록 할 것)
+수량, 원래 가격, 20% 인하 가격을 표시하는 SQL 구문을 작성하시오.
+(결과 헤더는 “도서명”, “재고수량”, “가격(Org)”, “가격(New)”로 표시할 것. 
+재고 수량이 많은 순, 할인 가격이 높은 순, 도서명 순으로 표시되도록 할 것)
 */
+SELECT * FROM TB_BOOK;
+
+SELECT BOOK_NM AS "도서명", STOCK_QTY AS "재고 수량", PRICE AS "가격(Org)", PRICE * 0.8 AS "가격(New)"
+FROM TB_BOOK
+WHERE EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM ISSUE_DATE) > 30
+AND STOCK_QTY >= 90
+ORDER BY 2 DESC;
+
