@@ -261,23 +261,33 @@ WHERE STOCK_QTY IN (SELECT STOCK_QTY
                     */
 -- 컬럼 추가해서 재고상태 표시하도록 만들어야 하나..??
 
+
 /*
 --20. '아타트롤' 도서 작가와 역자를 표시하는 SQL 구문을 작성하시오. (결과 헤더는
 ‘도서명’,’저자’,’역자’로 표시할 것)
 */
-SELECT * FROM TB_BOOK WHERE BOOK_NM = '아타트롤'; --1991081002               -- BOOK_NO
-SELECT * FROM TB_BOOK_TRANSLATOR WHERE BOOK_NO = 1991081002;  -- 647 윤도중  -- BOOK_NO     WRITER_NO
-SELECT * FROM TB_WRITER ORDER BY 2; --고트홀트 286 지음                           --             WRITER_NO
-SELECT * FROM TB_BOOK_TRANSLATOR;
-SELECT * FROM TB_WRITER WHERE WRITER_NM LIKE '고트홀트%';
-SELECT * FROM TB_BOOK_AUTHOR;
+SELECT * FROM TB_BOOK;              --(도서명): BOOK_NM
+SELECT * FROM TB_BOOK_AUTHOR;       --(저자번호): WRITER_NO
+SELECT * FROM TB_BOOK_TRANSLATOR;   --(역자번호): WRITER_NO
+SELECT * FROM TB_WRITER;            --(저자역자이름): WRITER_NM
 
-SELECT BOOK_NM, WRITER_NM, WRITER_NM
-FROM TB_BOOK
-JOIN TB_BOOK_AUTHOR A USING (BOOK_NO)
+SELECT * FROM TB_BOOK WHERE BOOK_NM = '아타트롤';
+
+SELECT BOOK_NM, W.WRITER_NM, WW.WRITER_NM
+FROM TB_BOOK B
+JOIN TB_BOOK_AUTHOR A ON (B.BOOK_NO = A.BOOK_NO)
 JOIN TB_WRITER W ON (A.WRITER_NO = W.WRITER_NO)
+JOIN TB_BOOK_TRANSLATOR T ON (B.BOOK_NO = T.BOOK_NO)
+JOIN TB_WRITER WW ON (T.WRITER_NO = WW.WRITER_NO)
 WHERE BOOK_NM = '아타트롤';
--- 자체조인
+
+
+
+
+
+
+
+
 
 /*
 --21. 현재 기준으로 최초 발행일로부터 만 30년이 경과되고, 재고 수량이 90권 이상인 도서에 대해 도서명, 재고
