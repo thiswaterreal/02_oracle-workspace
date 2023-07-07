@@ -255,29 +255,16 @@ INSERT INTO
 
 
 
-/*
+
 UPDATE TB_BOOK
-SET STOCK_QTY = '추가주문필요'
+SET STOCK_STATUS = '추가주문필요'
 WHERE STOCK_QTY IN (SELECT STOCK_QTY
                     FROM TB_BOOK
                     WHERE PUBLISHER_NM = '황금가지'
                     AND STOCK_QTY < 10);
-                    */
+                    
 -- 컬럼 추가해서 재고상태 표시하도록 만들어야 하나..??
 ALTER TABLE TB_BOOK ADD STOCK_STATUS VARCHAR2(20);  --재고상태 컬럼
-
-INSERT ALL
-WHEN PUBLISHER_NM = '황금가지' AND STOCK_QTY >
-
-
-
-INSERT ALL
-WHEN HIRE_DATE < '2000/01/01' THEN
-    INTO EMP_OLD VALUES (EMP_ID, EMP_NAME, HIRE_DATE, SALARY)
-WHEN HIRE_DATE >= '2000/01/01' THEN
-    INTO EMP_NEW VALUES (EMP_ID, EMP_NAME, HIRE_DATE, SALARY)
-SELECT EMP_ID, EMP_NAME, HIRE_DATE, SALARY
-FROM EMPLOYEE;
 
 
 
@@ -302,14 +289,6 @@ JOIN TB_WRITER W ON (A.WRITER_NO = W.WRITER_NO)
 JOIN TB_BOOK_TRANSLATOR T ON (B.BOOK_NO = T.BOOK_NO)
 JOIN TB_WRITER WW ON (T.WRITER_NO = WW.WRITER_NO)
 WHERE BOOK_NM = '아타트롤';
-
-
-
-
-
-
-
-
 
 /*
 --21. 현재 기준으로 최초 발행일로부터 만 30년이 경과되고, 재고 수량이 90권 이상인 도서에 대해 도서명, 재고
