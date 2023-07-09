@@ -82,13 +82,15 @@ INSERT INTO TB_PRODUCT VALUES(SEQ_PCODE.NEXTVAL, '대륙폰', '샤오미', 600000, 20)
 
 COMMIT;
 
+SELECT * FROM TB_PRODUCT;
+
 -- 2. 상품 입출고 상세 이력 테이블 (TB_PRODETAIL) 생성
 -- 어떤 상품이 어떤 날짜에 몇개가 입고 또는 출고가 되었는지에 대한 테이터를 기록하는 테이블
 CREATE TABLE TB_PRODETAIL(
     DCODE NUMBER PRIMARY KEY,                          -- 이력 번호
-    PCODE NUMBER REFERENCES TB_PRODUCT,                -- 상품 번호
-    PDATE DATE NOT NULL,                               -- 상품 입출고일
-    AMOUNT NUMBER NOT NULL,                            -- 입출고 수량
+    PCODE NUMBER REFERENCES TB_PRODUCT,                -- 상품 번호         TB_PRODUCT(PCODE) 참조
+    PDATE DATE NOT NULL,                               -- 상품 입출고 일
+    AMOUNT NUMBER NOT NULL,                            -- 상품 입출고 수량
     STATUS CHAR(6) CHECK(STATUS IN ('입고', '출고'))    -- 상태(입고/출고)
 );
 
@@ -138,6 +140,7 @@ WHERE PCODE = 205;  -- 제대로 입력
 
 COMMIT; -- 매우 번거로움..
 
+----------------------------------------------------------------------------------
 -- 자, TRIGGER 를 활용해보자!
 -- TB_PRODETAIL 테이블에 INSERT 이벤트 발생시
 -- TB_PRODUCT 테이블에 매번 자동으로 재고수량 UPDATE 되게끔 트리거 정의

@@ -2,6 +2,11 @@
     < GROUP BY 절 >
     그룹기준을 제시할 수 있는 구문 (해당 그룹 기준별로 여러 그룹을 묶을 수 있음)
     여러개의 값들을 하나의 그룹으로 묶어서 처리할 목적으로 사용
+    
+     그룹별     COUNT()|SUM()|AVG()|MAX()|MIN()
+    (문자형) <= (숫자형)
+     문자형으로 묶인 그룹에 숫자형들은 모두 종속되어 조회가 가능함
+    
 */
 
 SELECT SUM(SALARY)
@@ -81,7 +86,7 @@ GROUP BY DEPT_CODE;
 SELECT DEPT_CODE, AVG(SALARY)   -- 4
 FROM EMPLOYEE   -- 1
 GROUP BY DEPT_CODE  -- 2
-HAVING AVG(SALARY) >= 3000000;  -- 3
+HAVING AVG(SALARY) >= 3000000;  -- 3    -- HAVING 은 그룹에 대한 조건이기 때문에.. 해당 그릅함수를 써서 조건을 줌
 
 -- 직급별 총 급여합 (단 직급별 급여합 1000만원 이상인 직급만을 조회). 직급코드, 급여합 조회
 SELECT JOB_CODE, SUM(SALARY)
