@@ -87,10 +87,10 @@ ALTER TABLE DEPT_COPY2 DROP COLUMN LOCATION_ID;
 /*
     2_1) 제약조건 추가
          PRIMARY KEY    : ADD PRIMARY KEY(컬럼명)
-         FOREIGN KEY    : ADD FOREIGN KEY(컬럼명) REPERENCES 참조할테이블명 [(컬럼명)] -- 생략하면 PK값 자동 연결
+         * FOREIGN KEY    : ADD FOREIGN KEY(컬럼명) REPERENCES 참조할테이블명 [(컬럼명)] -- 생략하면 PK값 자동 연결
          UNIQUE         : ADD UNIQUE(컬럼명)
          CHECK          : ADD CHECH(컬럼에 대한 조건)
-         NOT NULL       : MODIFY 컬럼명 NOT NULL | NULL => 이거쓰면 NULL 허용
+         * NOT NULL       : MODIFY 컬럼명 NOT NULL | NULL => 이거쓰면 NULL 허용
          
          제약조건명을 지정하고자 한다면?  [CONSTRAINT 제약조건명] 제약조건
 */
@@ -104,14 +104,12 @@ ALTER TABLE DEPT_COPY
     ADD CONSTRAINT DCOPY_UQ UNIQUE(DEPT_TITLE)
     MODIFY LNAME CONSTRAINT DCOPY_NN NOT NULL;
 
--- 2_2) 제약조건 삭제 : DROP CONTRAINT 제약조건명
+-- 2_2) 제약조건 삭제
+-- DROP CONTRAINT 제약조건명
 -- NOT NULL 삭제말고 NULL로!! (MODIFY 컬럼명 NULL)
 
-ALTER TABLE DEPT_COPY DROP CONSTRAINT DCOPY_PK;
-
-ALTER TABLE DEPT_COPY
-    DROP CONSTRAINT DCOPY_UQ
-    MODIFY LNAME NULL;
+ALTER TABLE DEPT_COPY DROP CONSTRAINT DCOPY_PK;   -- 제약조건 삭제
+ALTER TABLE DEPT_COPY MODIFY LNAME NULL;          -- 제약조건 수정 (NOT NULL => NULL)
 
 ----------------------------------------------------------------------------------
 -- 3) 컬럼명 / 제약조건명 / 테이블명 변경 (RENAME)
@@ -139,8 +137,26 @@ SELECT * FROM DEPT_TEST;
 -- 테이블 삭제
 DROP TABLE DEPT_TEST;
 
+-- < 부모테이블 삭제 >
 -- 단, 어딘가에서 참조되고 있는 부모테이블은 함부로 삭제 안됨!
 -- 만약에 삭제하고자 한다면
 -- 방법1. 자식테이블 먼저 삭제한 후 => 부모테이블 삭제하는 방법
 -- 방법2. 그냥 부모테이블만 삭제하는데 제약조건까지 같이 삭제하는 방법
---        DROP TABLE 테이블명 CASCADE CONSTRAINT; (11:10)
+--        DROP TABLE 테이블명 CASCADE CONSTRAINT;
+
+-------------------------------------
+/* (CREATE 파일에 있는 내용)
+
+    < 부모테이블의 데이터 삭제 >
+    자식 테이블 생성시, 외래키 제약조건 부여할 떄 삭제옵션 지정가능
+    * 삭제옵션 : 부모테이블의 데이터 삭제시 그 데이터를 사용하고 있는 자식테이블의 값을
+                어떻게 처리할 것인지 지정하는 옵션
+    - ON DELETE RESTRICTED (기본값)  : 삭제제한옵션으로, 자식데이터로 쓰이는 부모데이터는 삭제 아예 안되게끔
+    - ON DELETE SET NULL            : 부모데이터 삭제시, 해당 데이터를 쓰고 있는 자식데이터의 값을 NULL로 변경
+    - ON DELETE CASCADE             : 부모데이터 삭제시, 해당 데이터를 쓰고 있는 자식데이터도 같이 삭제시킴
+    
+    < 부모테이블 삭제 > --(자식테이블이 참조중인..)
+    1) 자식테이블 먼저 삭제 후 => 부모테이블 삭제
+    2) 부모테이블 삭제 시, DROP TABLE 부모테이블명 CASCADE CONSTRAINT;
+
+*/

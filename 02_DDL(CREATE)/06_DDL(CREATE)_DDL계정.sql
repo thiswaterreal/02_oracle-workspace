@@ -316,7 +316,8 @@ CREATE TABLE MEM_PRI2(
         GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
-        PRIMARY KEY(MEM_NO, MEM_ID) -- 묶어서 PRIMARY KEY 제약 조건 부여(복합키)  -- 테이블레벨방식만!!   
+        PRIMARY KEY(MEM_NO, MEM_ID) -- 묶어서 PRIMARY KEY 제약 조건 부여 == *** 복합키 *** 테이블레벨방식만!! ***   
+                                                                       --     제약조건도 테이블레벨방식만!!
 );
 
 SELECT * FROM MEM_PRI2;
@@ -360,12 +361,14 @@ CREATE TABLE MEM_GRADE(
     GRADE_NAME VARCHAR2(30) NOT NULL
 );
 
+-- 부모테이블
 SELECT * FROM MEM_GRADE;
 
 INSERT INTO MEM_GRADE VALUES(10, '일반회원');
 INSERT INTO MEM_GRADE VALUES(20, '우수회원');
 INSERT INTO MEM_GRADE VALUES(30, '특별회원');
 
+-- 자식테이블(FOREIGN KEY 부여 X)
 CREATE TABLE MEM( 
         MEM_NO NUMBER PRIMARY KEY, 
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
@@ -408,6 +411,7 @@ VALUES (3, 'user03', 'pass03', '이승우', '남', null, null, 40);
 
 DROP TABLE MEM;
 
+-- 자식테이블 (FOREIGN KEY 부여 O)
 CREATE TABLE MEM( 
         MEM_NO NUMBER PRIMARY KEY, 
         MEM_ID VARCHAR2(20) NOT NULL UNIQUE,
@@ -441,7 +445,7 @@ INSERT INTO MEM
 VALUES(4, 'user04', 'pass04', '안정환', null, null, null, 10);
 
 SELECT * FROM MEM_GRADE;
--- MEM_GRADE(부모테이블) MEM(자식테이블)
+-- MEM_GRADE(부모테이블) / MEM(자식테이블)
 -- 이때 부모테이블 (MEM_GRADE) 에서 데이터 값을 삭제할 경우 어떤 문제가 발생할까?
 -- 데이터 삭제 : DELETE FROM 테이블명 WHERE 조건;
 
@@ -456,7 +460,7 @@ WHERE GRADE_CODE = 30;
 --> 자식테이블 (MEM)에 30 이라는 값을 사용하고 있지 않기 때문에 삭제가 잘 됨!
 
 --> 자식테이블에 이미 사용하고 있는 값이 있을 경우
---> 부모테이블로부터 무조건 삭제가 안되게 하는 '삭제제한' 옵션이 걸려있음
+--> 부모테이블로부터 무조건 삭제가 안되게 하는 '삭제제한' 옵션이 걸려있음 ==(ON DELETE RESTRICTED (기본값))
 
 ROLLBACK;
 
@@ -464,12 +468,18 @@ SELECT * FROM MEM_GRADE;
 
 ----------------------------------------------------------------------------------
 /*
+    < 부모테이블의 데이터 삭제 >
     자식 테이블 생성시, 외래키 제약조건 부여할 떄 삭제옵션 지정가능
     * 삭제옵션 : 부모테이블의 데이터 삭제시 그 데이터를 사용하고 있는 자식테이블의 값을
                 어떻게 처리할 것인지 지정하는 옵션
     - ON DELETE RESTRICTED (기본값)  : 삭제제한옵션으로, 자식데이터로 쓰이는 부모데이터는 삭제 아예 안되게끔
     - ON DELETE SET NULL            : 부모데이터 삭제시, 해당 데이터를 쓰고 있는 자식데이터의 값을 NULL로 변경
     - ON DELETE CASCADE             : 부모데이터 삭제시, 해당 데이터를 쓰고 있는 자식데이터도 같이 삭제시킴
+    
+    < 부모테이블 삭제 > --(자식테이블이 참조중인..)
+    1) 자식테이블 먼저 삭제 후 => 부모테이블 삭제
+    2) 부모테이블 삭제 시, DROP TABLE 부모테이블명 CASCADE CONSTRAINT;
+
 */
 
 DROP TABLE MEM;
@@ -521,7 +531,7 @@ CREATE TABLE MEM(
         GENDER CHAR(3) CHECK(GENDER IN ('남', '여')),
         PHONE VARCHAR2(13),
         EMAIL VARCHAR2(50), 
-        GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE CASCADE
+        GRADE_ID NUMBER REFERENCES MEM_GRADE(GRADE_CODE) ON DELETE CASCADE       -- 부모테이블의 GRADE_CODE 컬럼 삭제시, GRADE_ID 함께 삭제 됨
         -- , FOREIGN KEY(GRADE_ID) REFERENCES) MEM_GRADE(GRADE_CODE)
 );
 
@@ -608,7 +618,7 @@ AS SELECT EMP_ID, EMP_NAME, SALARY, SALARY * 12 AS "연봉"
    FROM EMPLOYEE;
 -- ORA-00998: must name this expression with a column alias
 -- alias : 별칭
---> 서브쿼리 SELECT 절에 산술식 또는 함수식 기술된 경우 반드시 별칭을 지정해야됨!
+--> 서브쿼리 SELECT 절, WHERE 절에 산술식 또는 함수식 기술된 경우 ***** 반드시 별칭!!을 지정해야됨 *****
 
 SELECT * FROM EMPLOYEE_COPY3;
 
@@ -625,7 +635,8 @@ SELECT * FROM EMPLOYEE_COPY3;
     - * NOT NULL    : ALTER TABLE 테이블명 MODIFY 컬럼명 NOT NULL;  ** 약간 특이함 **
 */
 
--- 서브쿼리를 이용해서 복제한 테이블 NN(NOT NULL) 제약조건 빼고 복제안됨
+-- 서브쿼리를 이용해서 복제한 테이블 NN(NOT NULL) 제약조건만 복제 됨
+-- 따라서, 나머지 제약조건들은 따로 추가해주어야 함
 
 -- EMPLOYEE_COPY 테이블에 PRIMARY KEY 제약조건 추가 (EMP_ID)
 ALTER TABLE EMPLOYEE_COPY ADD PRIMARY KEY (EMP_ID);
@@ -641,5 +652,3 @@ ALTER TABLE EMPLOYEE ADD FOREIGN KEY (SAL_LEVEL) REFERENCES SAL_GRADE;
 
 -- DEPARTMENT 테이블에 LOCATION_ID에 외래키 제약조건 추가 (LOCATION 참조)
 ALTER TABLE DEPARTMENT ADD FOREIGN KEY (LOCATION_ID) REFERENCES LOCATION;
-
-INSERT INTO DEPARTMENT VALUES('S1', '테스트부', 'S1');  --불가능
