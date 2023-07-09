@@ -120,6 +120,7 @@ AS SELECT EMP_ID, EMP_NAME, JOB_NAME,
      JOIN JOB USING (JOB_CODE);
 -- ORA-00998: must name this expression with a column alias
 -- alias : 별칭
+-- 집계 함수를 사용한 view를 생성 시, 반드시 별칭을 붙여주어야 함
 
 SELECT * FROM VW_EMP_JOB;
 

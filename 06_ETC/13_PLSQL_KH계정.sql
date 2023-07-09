@@ -242,7 +242,7 @@ END;
 /
 
 -----------------------------------------------------------------------------------
--- 4) CASE 비교대상자 WHEN 동등비교할값1 THEN 결과값1 WHEN 비교값2 THEN 결과값2 .. ELSE 결과값 END;
+-- 4) CASE 비교대상자 WHEN 동등비교할값1 THEN 결과값1 WHEN 비교값2 THEN 결과값2 .. ELSE 결과값 END; (SWITCH 문)
 DECLARE
     EMP EMPLOYEE%ROWTYPE;
     DNAME VARCHAR2(30); -- 부서명 보관 변수
@@ -266,13 +266,44 @@ BEGIN
         
 END;
 /
+----------------------------------
+-------------< 정리 >-------------
+-- 1) IF 문
+    IF BONUS = 0
+        THEN DBMS_OUTPUT.PUT_LINE('보너스를 지급받지 않는 사원입니다.');
+    END IF;
+    
+-- 2) IF ELSE 문
+    IF NCODE = 'KO'
+            THEN TEAM := '국내팀';
+        ELSE
+            TEAM := '해외팀';
+    END IF;
+        
+-- 3) IF ELSIF ELSE 문
+    IF SCORE >= 90 THEN GRADE := 'A';
+        ELSIF SCORE >= 80 THEN GRADE := 'B';
+        ELSIF SCORE >= 70 THEN GRADE := 'C';
+        ELSIF SCORE >= 60 THEN GRADE := 'D';
+        ELSE GRADE := 'F';
+    END IF;
+
+-- 4) CASE WHEN THEN 문
+    DNAME := CASE EMP.DEPT_CODE
+                WHEN 'D1' THEN '인사팀'
+                WHEN 'D2' THEN '회계팀'
+                WHEN 'D3' THEN '마케팅팀'
+                WHEN 'D4' THEN '국내영업팀'
+                WHEN 'D9' THEN '총무팀'
+                ELSE '해외영업팀'
+             END;
 
 ------------------------------------ 실습하기 ------------------------------------
 -- 1. 사원의 연봉을 구하는 PL/SQL 블럭 작성, 보너스가 있는 사원은 보너스도 포함하여 계산
 -- 보너스가 없으면 보너스 미포함 연봉
 -- 보너스가 있으면 보너스 포함 연봉
 -- 출력예시
--- 급여, 이름, \999,999,999 (8000000 선동일 \124,800,800)
+-- 급여, 이름, \999,999,999 (8000000 선동일 \124,800,800)       
 
 DECLARE
     ENAME EMPLOYEE.EMP_NAME%TYPE;

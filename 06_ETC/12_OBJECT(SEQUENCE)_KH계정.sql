@@ -112,7 +112,7 @@ INSERT
       )
 VALUES
       (
-        SEQ_EID.NEXTVAL
+        SEQ_EID.NEXTVAL       -- 400
       , '홍길동'               -- 여기를 이용해서 사원 추가
       , '111111-1111111'
       , 'J7'
@@ -134,7 +134,7 @@ INSERT
       )
 VALUES
       (
-        SEQ_EID.NEXTVAL
+        SEQ_EID.NEXTVAL       -- 401
       , '차은우'               -- 여기를 이용해서 사원 추가
       , '111111-2111111'
       , 'J6'
